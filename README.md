@@ -35,4 +35,3 @@ L'applicazione scaricherà automaticamente i file ogni due ore. I dettagli dell'
 ## Licenza
 
 Questo progetto è concesso in licenza con la Licenza MIT - consulta il file [LICENSE.md](LICENSE.md) per ulteriori dettagli.
-```
