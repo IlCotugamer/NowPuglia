@@ -10,4 +10,5 @@ public class EcoPugliaApplication {
 		SpringApplication.run(EcoPugliaApplication.class, args);
 	}
 
+
 }
