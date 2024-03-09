@@ -23,8 +23,9 @@ public class FileDownloadService implements IDatiSerivce {
         this.restTemplate = restTemplate;
     }
     @Override
-    @Scheduled(fixedRate = 2 * 60 * 60 * 1000)
+    @Scheduled(fixedRate = 2)
     public void downloadAllData() {
+        System.out.println("CIAO SONO IO\nCIAOSONOIO");
         downloadAriaData();
         downloadEnergiaData();
     }
