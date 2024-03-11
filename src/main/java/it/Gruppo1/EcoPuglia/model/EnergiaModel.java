@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 @Getter
 @Setter
@@ -14,13 +15,12 @@ public class EnergiaModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @NotNull
     private String provincia;
-
+    @NotNull
     private String comune;
-
+    @NotNull
     private String fonte;
-
     private float potenza;
 }
 

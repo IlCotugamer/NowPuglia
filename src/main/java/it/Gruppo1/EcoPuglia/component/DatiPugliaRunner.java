@@ -1,20 +1,20 @@
 package it.Gruppo1.EcoPuglia.component;
 
-import it.Gruppo1.EcoPuglia.serviceImp.FileDownloadService;
+import it.Gruppo1.EcoPuglia.serviceImp.FileDownloaderService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DatiPugliaRunner implements ApplicationRunner {
-    private final FileDownloadService fileDownloadService;
+    private final FileDownloaderService fileDownloaderService;
 
-    public DatiPugliaRunner(FileDownloadService fileDownloadService){
-        this.fileDownloadService = fileDownloadService;
+    public DatiPugliaRunner(FileDownloaderService fileDownloaderService){
+        this.fileDownloaderService = fileDownloaderService;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        fileDownloadService.downloadAllData();
+        fileDownloaderService.downloadAllData();
     }
 }
