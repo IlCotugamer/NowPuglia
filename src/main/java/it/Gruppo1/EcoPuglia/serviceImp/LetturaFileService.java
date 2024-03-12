@@ -1,6 +1,7 @@
 package it.Gruppo1.EcoPuglia.serviceImp;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -45,9 +46,9 @@ public class LetturaFileService implements ILetturaFileService {
     }
 
     @Override
-    public void letturaFileCsv() throws IOException {
+    public void letturaFileCsv(String path) throws IOException {
         try {
-            FileReader fileReader = new FileReader(appCostants.getPathEnergia());
+            FileReader fileReader = new FileReader(path);
             CSVReader csvReader = new CSVReader(fileReader);
             EnergiaModel energiaModel;
             String[] lettura;
@@ -67,15 +68,15 @@ public class LetturaFileService implements ILetturaFileService {
     }
 
     @Override
-    public void letturaFileJson() {
-        try (Reader reader = new FileReader(appCostants.getPathAria())) {
+    public void letturaFileJson(String path) {
+        try (Reader reader = new FileReader(path)) {
             Gson gson = new Gson();
             JsonObject json = gson.fromJson(reader, JsonObject.class);
             JsonObject result =  json.getAsJsonObject("result");
-            JsonObject records = result.getAsJsonObject("records");
+            JsonArray records = result.getAsJsonArray("records");
             List<AriaModel> recordList = new ArrayList<>();
-            for (int i = 0; i < ; i++) {
-                
+            for (int i = 0; i < records.size(); i++) {
+                System.out.println(gson.fromJson(records.get(i), AriaModel.class));
             }
         } catch (Exception e) {
             logger.error("Errore nella lettura del file | File: " + appCostants.getPathAria());

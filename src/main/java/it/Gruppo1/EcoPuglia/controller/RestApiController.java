@@ -6,6 +6,10 @@ TODO:
     - Richieste al db
     - Query specifiche
 */
+
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
 public class RestApiController {
 
 }

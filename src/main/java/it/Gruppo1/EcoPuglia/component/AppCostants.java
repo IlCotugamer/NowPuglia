@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Component
 public class AppCostants {
-    private String pathAria = "src/main/resources/Aria/inq.json";
-    private String pathEnergia = "src/main/resources/Energia/energia.csv";
+    private final String pathAria = "src/main/resources/Aria/inq.json";
+    private final String pathEnergia = "src/main/resources/Energia/energia.csv";
     private int totalLimit;
 }

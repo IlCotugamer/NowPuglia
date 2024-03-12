@@ -3,12 +3,11 @@ package it.Gruppo1.EcoPuglia.serviceImp;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import it.Gruppo1.EcoPuglia.component.AppCostants;
-import it.Gruppo1.EcoPuglia.service.IDatiSerivce;
+import it.Gruppo1.EcoPuglia.service.IFileDownloaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -19,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
-public class FileDownloaderService implements IDatiSerivce {
+public class FileDownloaderService implements IFileDownloaderService {
     private final WebClient webClient;
     private static final Logger logger = LoggerFactory.getLogger(FileDownloaderService.class);
     private static final Gson gson = new Gson();
@@ -32,7 +31,6 @@ public class FileDownloaderService implements IDatiSerivce {
     }
 
     @Override
-    @Scheduled(fixedRate = 60 * 60 * 1000) // (1s * 60 = 1m * 60 = 1h) * 1000 = 3600000ms == 1h
     public void downloadAllData() {
         int total = downloadAria().intValue();
         downloadEnergia();
@@ -63,7 +61,8 @@ public class FileDownloaderService implements IDatiSerivce {
         getData(url, appCostants.getPathEnergia(), false);
     }
 
-    private void getData(String url, String file, boolean is_json) {
+    @Override
+    public void getData(String url, String file, boolean is_json) {
         webClient.get().uri(url)
                 .accept(is_json ? MediaType.APPLICATION_JSON : MediaType.ALL)
                 .retrieve()
