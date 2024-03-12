@@ -1,15 +1,18 @@
 package it.Gruppo1.EcoPuglia.serviceImp;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import it.Gruppo1.EcoPuglia.component.AppCostants;
+import it.Gruppo1.EcoPuglia.config.LocalDateTimeAdapter;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
 import it.Gruppo1.EcoPuglia.model.EnergiaModel;
 import it.Gruppo1.EcoPuglia.repository.IEnergiaRepository;
 import it.Gruppo1.EcoPuglia.service.ILetturaFileService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +22,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class LetturaFileService implements ILetturaFileService {
@@ -45,20 +48,21 @@ public class LetturaFileService implements ILetturaFileService {
         letturaFileJson(appCostants.getPathAria());
     }
 
-    @Override
-    public void letturaFileCsv(String path) throws IOException {
+    @Transactional
+    protected void letturaFileCsv(String path) throws IOException {
         try {
             FileReader fileReader = new FileReader(path);
             CSVReader csvReader = new CSVReader(fileReader);
             EnergiaModel energiaModel;
             String[] lettura;
+            lettura = csvReader.readNext();
             while ((lettura = csvReader.readNext()) != null) {
                 energiaModel = new EnergiaModel();
                 energiaModel.setProvincia(lettura[0]);
                 energiaModel.setComune(lettura[1]);
                 energiaModel.setFonte(lettura[2]);
-                energiaModel.setPotenza(Float.parseFloat(lettura[3]));
-//                iEnergiaRepository.save(energiaModel);
+                energiaModel.setPotenza(Float.parseFloat(lettura[3].replace(",", ".")));
+                iEnergiaRepository.save(energiaModel);
                 System.out.println(energiaModel);
             }
         } catch (FileNotFoundException e) {
@@ -68,19 +72,20 @@ public class LetturaFileService implements ILetturaFileService {
         }
     }
 
-    @Override
-    public void letturaFileJson(String path) {
+    private void letturaFileJson(String path) {
         try (Reader reader = new FileReader(path)) {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter(DateTimeFormatter.ISO_DATE_TIME))
+                    .create();
             JsonObject json = gson.fromJson(reader, JsonObject.class);
             JsonObject result =  json.getAsJsonObject("result");
             JsonArray records = result.getAsJsonArray("records");
-            List<AriaModel> recordList = new ArrayList<>();
             for (int i = 0; i < records.size(); i++) {
-                System.out.println(gson.fromJson(records.get(i), AriaModel.class));
+                AriaModel ariaModel = gson.fromJson(records.get(i), AriaModel.class);
+                System.out.println(ariaModel + " " + i);
             }
         } catch (Exception e) {
-            logger.error("Errore nella lettura del file | File: " + appCostants.getPathAria());
+            logger.error("Errore nella lettura del file | File: " + appCostants.getPathAria() + " | Errore: " + e);
         }
     }
 }

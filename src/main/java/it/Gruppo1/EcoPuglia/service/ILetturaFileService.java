@@ -4,6 +4,4 @@ import java.io.IOException;
 
 public interface ILetturaFileService {
     void runService();
-    void letturaFileCsv(String path) throws IOException;
-    void letturaFileJson(String path);
 }
