@@ -38,11 +38,11 @@ public class LetturaFileService implements ILetturaFileService {
     @Override
     public void runService() {
         try {
-            letturaFileCsv();
+            letturaFileCsv(appCostants.getPathEnergia());
         } catch (IOException e) {
             logger.error("Errore nella lettura del file | File: " + appCostants.getPathEnergia(), e);
         }
-        letturaFileJson();
+        letturaFileJson(appCostants.getPathAria());
     }
 
     @Override
@@ -58,7 +58,8 @@ public class LetturaFileService implements ILetturaFileService {
                 energiaModel.setComune(lettura[1]);
                 energiaModel.setFonte(lettura[2]);
                 energiaModel.setPotenza(Float.parseFloat(lettura[3]));
-                iEnergiaRepository.save(energiaModel);
+//                iEnergiaRepository.save(energiaModel);
+                System.out.println(energiaModel);
             }
         } catch (FileNotFoundException e) {
             logger.error("File non trovato o inesistente | Path fornita: " + appCostants.getPathEnergia(), e);
