@@ -20,7 +20,7 @@ public class FileManagerComponent {
         this.iLetturaFileService = iLetturaFileService;
     }
 
-    @Scheduled(fixedRate = 6000) // (1s * 60 = 1m * 60 = 1h) * 1000 = 3600000ms == 1h
+    @Scheduled(fixedRate = 10 * 1000) // (1s * 60 = 1m * 60 = 1h) * 1000 = 3600000ms == 1h
     private void fileManager(){
         iFileDownloaderService.downloadAllData();
         iLetturaFileService.runService();

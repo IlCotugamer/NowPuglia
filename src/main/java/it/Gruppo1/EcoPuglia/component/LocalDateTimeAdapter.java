@@ -1,14 +1,18 @@
-package it.Gruppo1.EcoPuglia.config;
+package it.Gruppo1.EcoPuglia.component;
 
 import com.google.gson.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Component
 public class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
     private final DateTimeFormatter formatter;
 
+    @Autowired
     public LocalDateTimeAdapter(DateTimeFormatter formatter) {
         this.formatter = formatter;
     }
