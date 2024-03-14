@@ -27,8 +27,8 @@ public class AriaModel {
     private String denominazione;
     private String comune;
     private String provincia;
-    private String longitude;
-    private String latitude;
+    private double longitude;
+    private double latitude;
     @SerializedName("tipologia_di_area")
     private String tipologiaDiArea;
     @SerializedName("tipologia_di_stazione")
@@ -39,7 +39,7 @@ public class AriaModel {
     @SerializedName("inquinante_misurato")
     private String inquinanteMisurato;
     @SerializedName("valore_inquinante_misurato")
-    private Integer valoreInquinanteMisurato;
+    private float valoreInquinanteMisurato;
     private Integer limite;
     @SerializedName("unita_misura")
     private String unitaMisura;

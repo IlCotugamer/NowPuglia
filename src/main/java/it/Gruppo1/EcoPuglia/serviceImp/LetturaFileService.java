@@ -11,7 +11,6 @@ import it.Gruppo1.EcoPuglia.component.LocalDateTimeAdapter;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
 import it.Gruppo1.EcoPuglia.model.EnergiaModel;
 import it.Gruppo1.EcoPuglia.repository.IEnergiaRepository;
-import it.Gruppo1.EcoPuglia.service.ILetturaFileService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class LetturaFileService implements ILetturaFileService {
+public class LetturaFileService {
     private int totalLimit;
     private final IEnergiaRepository iEnergiaRepository;
     private static final Logger logger = LoggerFactory.getLogger(LetturaFileService.class);
@@ -38,7 +37,6 @@ public class LetturaFileService implements ILetturaFileService {
         this.iEnergiaRepository = iEnergiaRepository;
     }
 
-    @Override
     public void runService() {
         try {
             //noinspection SpringTransactionalMethodCallsInspection
