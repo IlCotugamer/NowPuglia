@@ -50,12 +50,12 @@ public class DataManagerService implements IDataManagerService {
         logger.info("File ricevuti correttamente | Time: " + LocalDateTime.now()); // TEMP DEBUG
 
         // Fase 2: leggere i dati e crazione delle appModel apposite;
-
+        letturaEnergia();
 
         // Fase 3: caricare i dati nel db
         iEnergiaRepository.saveAll(energiaModelList);
-        iAriaRepository.saveAll(ariaModelList);
-        logger.info("Salvato con successo nel database");
+//        iAriaRepository.saveAll(ariaModelList);
+//        logger.info("Salvato con successo nel database");
     }
 
     // FASE 1 ----------------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ public class DataManagerService implements IDataManagerService {
     }
 
     private void getData(String url, boolean is_json) {
-        webClient.get().uri(url)
+        byte[] data = webClient.get().uri(url)
                 .accept(is_json ? MediaType.APPLICATION_JSON : MediaType.ALL)
                 .retrieve()
                 .bodyToMono(byte[].class)
@@ -87,30 +87,39 @@ public class DataManagerService implements IDataManagerService {
                     logger.error("Errore durante la richiesta HTTP", throwable);
                     return Mono.empty();
                 })
-                .subscribe(data -> {
-                    if (is_json) ariaData = data;
-                    else energiaData = data;
-                });
+                .block();
+        if (is_json) {
+            ariaData = data;
+        } else {
+            energiaData = data;
+        }
     }
 
     // FASE 2 ----------------------------------------------------------------------------------------------------------
 
     private void letturaEnergia() {
         int i;
+        boolean is_frist = true;
         EnergiaModel energiaModel;
         String csvData = new String(energiaData);
         CSVReader csvReader = new CSVReader(new StringReader(csvData));
         try {
             List<String[]> allRecords = csvReader.readAll();
+            i = 1;
             for (String[] lineRecords : allRecords) {
-                for (i = 1; i < lineRecords.length; i++) {
-                    energiaModel = new EnergiaModel();
-                    energiaModel.setId(i);
-                    energiaModel.setProvincia(lineRecords[0]);
-                    energiaModel.setComune(lineRecords[1]);
-                    energiaModel.setFonte(lineRecords[2]);
-                    energiaModel.setPotenza(Float.parseFloat(lineRecords[3]));
+                if (is_frist) {
+                    is_frist = false;
+                    continue;
                 }
+                energiaModel = new EnergiaModel();
+                energiaModel.setId(i);
+                energiaModel.setProvincia(lineRecords[0]);
+                energiaModel.setComune(lineRecords[1]);
+                energiaModel.setFonte(lineRecords[2]);
+                energiaModel.setPotenza(Float.parseFloat(lineRecords[3].replace(",", ".")));
+                energiaModelList.add(energiaModel);
+
+                i++;
             }
         } catch (IOException | CsvException e) {
             logger.error("Errore nella lettura dei dati .csv | Error: " + e);
