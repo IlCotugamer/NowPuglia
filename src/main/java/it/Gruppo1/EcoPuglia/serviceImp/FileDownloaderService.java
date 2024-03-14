@@ -32,9 +32,8 @@ public class FileDownloaderService implements IFileDownloaderService {
 
     @Override
     public void downloadAllData() {
-        int total = downloadAria().intValue();
+        appCostants.setTotalLimit(downloadAria().intValue());
         downloadEnergia();
-        appCostants.setTotalLimit(total);
 
         System.out.println("Eseguito correttamente | Time: " + LocalDateTime.now()); // TEMP DEBUG
     }

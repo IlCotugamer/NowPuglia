@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import it.Gruppo1.EcoPuglia.component.AppCostants;
-import it.Gruppo1.EcoPuglia.component.AriaModelDeserializer;
 import it.Gruppo1.EcoPuglia.component.LocalDateTimeAdapter;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
 import it.Gruppo1.EcoPuglia.model.EnergiaModel;
@@ -67,7 +66,7 @@ public class LetturaFileService implements ILetturaFileService {
                 energiaModel.setComune(lettura[1]);
                 energiaModel.setFonte(lettura[2]);
                 energiaModel.setPotenza(Float.parseFloat(lettura[3].replace(",", ".")));
-//                iEnergiaRepository.save(energiaModel);
+                iEnergiaRepository.save(energiaModel);
                 i++;
             }
         } catch (FileNotFoundException e) {
@@ -81,15 +80,25 @@ public class LetturaFileService implements ILetturaFileService {
     protected void letturaFileJson(String path) {
         try (Reader reader = new FileReader(path)) {
             Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(AriaModel.class, new AriaModelDeserializer())
                     .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter(DateTimeFormatter.ISO_DATE_TIME))
                     .create();
+            int currentId = 1;
             JsonObject json = gson.fromJson(reader, JsonObject.class);
-            JsonObject result =  json.getAsJsonObject("result");
-            JsonArray records = result.getAsJsonArray("records");
-            for (int i = 0; i < records.size(); i++) {
-                AriaModel ariaModel = gson.fromJson(records.get(i), AriaModel.class);
-                System.out.println(ariaModel);
+            if (json != null && json.has("result")) {
+                JsonObject result =  json.getAsJsonObject("result");
+                if (result != null && result.has("records")) {
+                    JsonArray records = result.getAsJsonArray("records");
+                    for (int i = 0; i < records.size(); i++) {
+                        JsonObject record = records.get(i).getAsJsonObject();
+                        if (record != null) {
+                            AriaModel ariaModel = gson.fromJson(record, AriaModel.class);
+                            if (ariaModel != null) {
+                                ariaModel.setId(currentId++);
+                                System.out.println(ariaModel);
+                            }
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             logger.error("Errore nella lettura del file | File: " + appCostants.getPathAria() + " | Errore: " + e);
