@@ -1,26 +1,25 @@
 package it.Gruppo1.EcoPuglia.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.*;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "energia")
+@Table(name  = "Energia")
 public class EnergiaModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    @NotNull
-    private String provincia;
-    @NotNull
-    private String comune;
-    @NotNull
-    private String fonte;
-    private float potenza;
+    private int id;
+    @NotEmpty(message = "Il campo fonte non può essere vuoto")
+    private int fonte;
+    @NotEmpty(message = "Il campo potenza non può essere vuoto")
+    private String potenza;
+    @ManyToOne
+    @JoinColumn(name = "CODCitta", referencedColumnName = "IDCitta")
+    private CittaModel cittaModel;
 }
-

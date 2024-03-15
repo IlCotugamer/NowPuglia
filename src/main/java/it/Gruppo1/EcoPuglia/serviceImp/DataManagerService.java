@@ -1,7 +1,6 @@
 package it.Gruppo1.EcoPuglia.serviceImp;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -32,7 +32,7 @@ public class DataManagerService implements IDataManagerService {
     private final List<AriaModel> ariaModelList = new ArrayList<>();
     private final IEnergiaRepository iEnergiaRepository;
     private final IAriaRepository iAriaRepository;
-    private byte[] ariaData;
+    private JsonArray ariaData;
     private byte[] energiaData;
 
     @Autowired
@@ -51,9 +51,12 @@ public class DataManagerService implements IDataManagerService {
 
         // Fase 2: leggere i dati e crazione delle appModel apposite;
         letturaEnergia();
+        letturaAria();
+
+        System.out.println(ariaModelList);
 
         // Fase 3: caricare i dati nel db
-        iEnergiaRepository.saveAll(energiaModelList);
+//        iEnergiaRepository.saveAll(energiaModelList);
 //        iAriaRepository.saveAll(ariaModelList);
 //        logger.info("Salvato con successo nel database");
     }
@@ -68,19 +71,36 @@ public class DataManagerService implements IDataManagerService {
                 .subscribe(data -> {
                     JsonObject jsonObject = gson.fromJson(data, JsonObject.class);
                     String newUrl = url + "&limit=" + jsonObject.getAsJsonObject("result").get("total").getAsInt();
-                    getData(newUrl, true);
+                    getDataAria(newUrl);
 
                 });
     }
 
     private void downloadEnergia() {
         String url = "http://www.opendataipres.it/dataset/85045ff8-5e20-4f26-8585-2f2ba0a5c3d5/resource/e5e12518-69d8-46b8-8068-9dc89d356cad/download/richieste-connessione-puglia.csv&type=resource";
-        getData(url, false);
+        getDataEnergia(url);
     }
 
-    private void getData(String url, boolean is_json) {
-        byte[] data = webClient.get().uri(url)
-                .accept(is_json ? MediaType.APPLICATION_JSON : MediaType.ALL)
+    private void getDataAria(String url) {
+        webClient.get().uri(url)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(String.class)
+                .onErrorResume(throwable -> {
+                    logger.error("Errore durante la richiesta HTTP", throwable);
+                    return Mono.empty();
+                })
+                .subscribe(data -> {
+                    JsonObject jsonObject = gson.fromJson(data, JsonObject.class);
+                    JsonObject result = jsonObject.getAsJsonObject("result");
+                    ariaData = result.getAsJsonArray("records");
+                });
+
+    }
+
+    private void getDataEnergia(String url) {
+        energiaData = webClient.get().uri(url)
+                .accept(MediaType.ALL)
                 .retrieve()
                 .bodyToMono(byte[].class)
                 .onErrorResume(throwable -> {
@@ -88,11 +108,6 @@ public class DataManagerService implements IDataManagerService {
                     return Mono.empty();
                 })
                 .block();
-        if (is_json) {
-            ariaData = data;
-        } else {
-            energiaData = data;
-        }
     }
 
     // FASE 2 ----------------------------------------------------------------------------------------------------------
@@ -128,6 +143,40 @@ public class DataManagerService implements IDataManagerService {
     }
 
     private void letturaAria() {
+        try {
+            AriaModel ariaModel;
+            JsonObject record;
+            int i = 0;
+            for (JsonElement jsonElement : ariaData) {
+                record = jsonElement.getAsJsonObject();
+                if (record.get("valore_inquinante_misurato").isJsonNull())
+                    continue;
+                ariaModel = new AriaModel();
+                ariaModel.setId(i);
+                ariaModel.setDataDiMisurazione(LocalDateTime.parse(record.get("data_di_misurazione").getAsString()));
+                ariaModel.setIdStation(record.get("id_station").getAsInt());
+                ariaModel.setDenominazione(record.get("denominazione").getAsString());
+                ariaModel.setComune(record.get("comune").getAsString());
+                ariaModel.setProvincia(record.get("provincia").getAsString());
+                ariaModel.setLongitude(record.get("Longitude").getAsDouble());
+                ariaModel.setLatitude(record.get("Latitude").getAsDouble());
+                ariaModel.setTipologiaDiArea(record.get("tipologia_di_area").getAsString());
+                ariaModel.setTipologiaDiStazione(record.get("tipologia_di_stazione").getAsString());
+                ariaModel.setRete(record.get("rete").getAsString());
+                ariaModel.setInteresseRete(record.get("interesse_rete").getAsString());
+                ariaModel.setInquinanteMisurato(record.get("inquinante_misurato").getAsString());
+                ariaModel.setValoreInquinanteMisurato(record.get("valore_inquinante_misurato").getAsFloat());
+                ariaModel.setLimite(record.get("limite").getAsInt());
+                ariaModel.setUnitaMisura(record.get("unita_misura").getAsString());
+                ariaModel.setSuperamenti(record.get("superamenti").getAsInt());
+                ariaModel.setIndiceQualita(record.get("indice_qualita").getAsInt());
+                ariaModel.setClasseQualita(record.get("classe_qualita").getAsString());
 
+                ariaModelList.add(ariaModel);
+                i++;
+            }
+        } catch (JsonSyntaxException e) {
+            logger.error("Errore nella struttura del Json | Errore: " + e);
+        }
     }
 }
