@@ -4,9 +4,9 @@ import com.google.gson.*;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
+import it.Gruppo1.EcoPuglia.model.CittaModel;
 import it.Gruppo1.EcoPuglia.model.EnergiaModel;
-import it.Gruppo1.EcoPuglia.repository.IAriaRepository;
-import it.Gruppo1.EcoPuglia.repository.IEnergiaRepository;
+import it.Gruppo1.EcoPuglia.repository.*;
 import it.Gruppo1.EcoPuglia.service.IDataManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DataManagerService implements IDataManagerService {
@@ -31,14 +31,20 @@ public class DataManagerService implements IDataManagerService {
     private final List<EnergiaModel> energiaModelList = new ArrayList<>();
     private final List<AriaModel> ariaModelList = new ArrayList<>();
     private final IEnergiaRepository iEnergiaRepository;
+    private final ICittaRepository iCittaRepository;
+    private final IValoriInquinantiRepository iValoriInquinantiRepository;
+    private final IUtentiRepository iUtentiRepository;
     private final IAriaRepository iAriaRepository;
     private JsonArray ariaData;
     private byte[] energiaData;
 
     @Autowired
-    public DataManagerService(WebClient.Builder webClientBuilder, IEnergiaRepository iEnergiaRepository, IAriaRepository iAriaRepository){
+    public DataManagerService(WebClient.Builder webClientBuilder, IEnergiaRepository iEnergiaRepository, ICittaRepository iCittaRepository, IValoriInquinantiRepository iValoriInquinantiRepository, IUtentiRepository iUtentiRepository, IAriaRepository iAriaRepository){
         this.webClient = webClientBuilder.build();
         this.iEnergiaRepository = iEnergiaRepository;
+        this.iCittaRepository = iCittaRepository;
+        this.iValoriInquinantiRepository = iValoriInquinantiRepository;
+        this.iUtentiRepository = iUtentiRepository;
         this.iAriaRepository = iAriaRepository;
     }
 
@@ -53,10 +59,8 @@ public class DataManagerService implements IDataManagerService {
         letturaEnergia();
         letturaAria();
 
-        System.out.println(ariaModelList);
-
         // Fase 3: caricare i dati nel db
-//        iEnergiaRepository.saveAll(energiaModelList);
+        iEnergiaRepository.saveAll(energiaModelList);
 //        iAriaRepository.saveAll(ariaModelList);
 //        logger.info("Salvato con successo nel database");
     }
@@ -113,28 +117,36 @@ public class DataManagerService implements IDataManagerService {
     // FASE 2 ----------------------------------------------------------------------------------------------------------
 
     private void letturaEnergia() {
-        int i;
         boolean is_frist = true;
+        CittaModel cittaModel;
         EnergiaModel energiaModel;
+
         String csvData = new String(energiaData);
         CSVReader csvReader = new CSVReader(new StringReader(csvData));
         try {
             List<String[]> allRecords = csvReader.readAll();
-            i = 1;
             for (String[] lineRecords : allRecords) {
                 if (is_frist) {
                     is_frist = false;
                     continue;
                 }
-                energiaModel = new EnergiaModel();
-                energiaModel.setId(i);
-                energiaModel.setProvincia(lineRecords[0]);
-                energiaModel.setComune(lineRecords[1]);
-                energiaModel.setFonte(lineRecords[2]);
-                energiaModel.setPotenza(Float.parseFloat(lineRecords[3].replace(",", ".")));
-                energiaModelList.add(energiaModel);
 
-                i++;
+                cittaModel = new CittaModel(lineRecords[1], "0.00", "0.00");
+
+                energiaModel = new EnergiaModel(
+                        (Objects.equals(lineRecords[2], "Solare")) ? 0 : (Objects.equals(lineRecords[2], "Eolico on-shore")) ? 1 : 2,
+                        lineRecords[3],
+                        cittaModel
+                );
+
+                if (!iCittaRepository.existsByNomeCittaAndLongitudeAndLatitude(cittaModel.getNomeCitta(), cittaModel.getLongitude(), cittaModel.getLatitude())) {
+                    iCittaRepository.save(cittaModel);
+                } else continue;
+
+                if (!iEnergiaRepository.existsByFonteAndPotenzaAndCittaInfo(energiaModel.getFonte(), energiaModel.getPotenza(), cittaModel)) {
+                    energiaModelList.add(energiaModel);
+                }
+
             }
         } catch (IOException | CsvException e) {
             logger.error("Errore nella lettura dei dati .csv | Error: " + e);
@@ -145,35 +157,28 @@ public class DataManagerService implements IDataManagerService {
     private void letturaAria() {
         try {
             AriaModel ariaModel;
+            CittaModel cittaModel;
             JsonObject record;
-            int i = 0;
             for (JsonElement jsonElement : ariaData) {
                 record = jsonElement.getAsJsonObject();
                 if (record.get("valore_inquinante_misurato").isJsonNull())
                     continue;
-                ariaModel = new AriaModel();
-                ariaModel.setId(i);
-                ariaModel.setDataDiMisurazione(LocalDateTime.parse(record.get("data_di_misurazione").getAsString()));
-                ariaModel.setIdStation(record.get("id_station").getAsInt());
-                ariaModel.setDenominazione(record.get("denominazione").getAsString());
-                ariaModel.setComune(record.get("comune").getAsString());
-                ariaModel.setProvincia(record.get("provincia").getAsString());
-                ariaModel.setLongitude(record.get("Longitude").getAsDouble());
-                ariaModel.setLatitude(record.get("Latitude").getAsDouble());
-                ariaModel.setTipologiaDiArea(record.get("tipologia_di_area").getAsString());
-                ariaModel.setTipologiaDiStazione(record.get("tipologia_di_stazione").getAsString());
-                ariaModel.setRete(record.get("rete").getAsString());
-                ariaModel.setInteresseRete(record.get("interesse_rete").getAsString());
-                ariaModel.setInquinanteMisurato(record.get("inquinante_misurato").getAsString());
-                ariaModel.setValoreInquinanteMisurato(record.get("valore_inquinante_misurato").getAsFloat());
-                ariaModel.setLimite(record.get("limite").getAsInt());
-                ariaModel.setUnitaMisura(record.get("unita_misura").getAsString());
-                ariaModel.setSuperamenti(record.get("superamenti").getAsInt());
-                ariaModel.setIndiceQualita(record.get("indice_qualita").getAsInt());
-                ariaModel.setClasseQualita(record.get("classe_qualita").getAsString());
+
+                if (iCittaRepository.existsByNomeCitta(String.valueOf(record.get("comune")))) continue; //ERRATO IO VOGLIO L'UPDATE CON LE CORDINATE
+                cittaModel = new CittaModel(
+                        String.valueOf(record.get("comune")),
+                        String.valueOf(record.get("Longitude")),
+                        String.valueOf(record.get("Latitude"))
+                );
+
+                ariaModel = new AriaModel(
+                        (Objects.equals(String.valueOf(record.get("tipologia_di_area")), "Suburbana")) ? 1 : 2,
+                        LocalDateTime.parse(record.get("data_di_misurazione").getAsString()),
+                        cittaModel
+                );
+
 
                 ariaModelList.add(ariaModel);
-                i++;
             }
         } catch (JsonSyntaxException e) {
             logger.error("Errore nella struttura del Json | Errore: " + e);

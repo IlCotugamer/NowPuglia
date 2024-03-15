@@ -5,7 +5,11 @@ spring:
     password: 1234
     url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/EcoPuglia
 
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: 'false'
+    open-in-view: true
