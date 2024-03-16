@@ -21,8 +21,7 @@ public class AriaModel {
     private int id;
     @NotNull(message = "L'area non può essere vuota")
     private int tipoArea;
-    @NotNull
-    @NotEmpty(message = "La data non può essere vuota")
+    @NotNull(message = "La data non può essere vuota")
     private LocalDateTime dataMisurazione;
     @ManyToOne
     @JoinColumn(name = "CODCitta", referencedColumnName = "IDCitta")

@@ -6,6 +6,7 @@ import com.opencsv.exceptions.CsvException;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
 import it.Gruppo1.EcoPuglia.model.CittaModel;
 import it.Gruppo1.EcoPuglia.model.EnergiaModel;
+import it.Gruppo1.EcoPuglia.model.ValoriInquinantiModel;
 import it.Gruppo1.EcoPuglia.repository.*;
 import it.Gruppo1.EcoPuglia.service.IDataManagerService;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static java.lang.String.*;
 
 @Service
 public class DataManagerService implements IDataManagerService {
@@ -62,6 +65,7 @@ public class DataManagerService implements IDataManagerService {
         // Fase 3: caricare i dati nel db
         iEnergiaRepository.saveAll(energiaModelList);
 //        iAriaRepository.saveAll(ariaModelList);
+//        iValoriInquinantiRepository.saveAll();
 //        logger.info("Salvato con successo nel database");
     }
 
@@ -131,7 +135,7 @@ public class DataManagerService implements IDataManagerService {
                     continue;
                 }
 
-                cittaModel = new CittaModel(lineRecords[1], "0.00", "0.00");
+                cittaModel = new CittaModel(lineRecords[1], "en0", "en0");
 
                 energiaModel = new EnergiaModel(
                         (Objects.equals(lineRecords[2], "Solare")) ? 0 : (Objects.equals(lineRecords[2], "Eolico on-shore")) ? 1 : 2,
@@ -139,7 +143,7 @@ public class DataManagerService implements IDataManagerService {
                         cittaModel
                 );
 
-                if (!iCittaRepository.existsByNomeCittaAndLongitudeAndLatitude(cittaModel.getNomeCitta(), cittaModel.getLongitude(), cittaModel.getLatitude())) {
+                if (iCittaRepository.existsByNomeCittaAndLongitudeAndLatitude(cittaModel.getNomeCitta(), cittaModel.getLongitude(), cittaModel.getLatitude())) {
                     iCittaRepository.save(cittaModel);
                 } else continue;
 
@@ -155,33 +159,61 @@ public class DataManagerService implements IDataManagerService {
     }
 
     private void letturaAria() {
-        try {
-            AriaModel ariaModel;
-            CittaModel cittaModel;
-            JsonObject record;
-            for (JsonElement jsonElement : ariaData) {
-                record = jsonElement.getAsJsonObject();
-                if (record.get("valore_inquinante_misurato").isJsonNull())
-                    continue;
+        Exception controllo = null;
+        do {
+            try {
+                AriaModel ariaModel;
+                ValoriInquinantiModel valoriInquinantiModel;
+                CittaModel cittaModel;
+                JsonObject record;
+                int dataSize = ariaData.size();
+                for (int i = 0; i < dataSize; i++) {
+                    JsonElement jsonElement = ariaData.get(i);
+                    record = jsonElement.getAsJsonObject();
+                    System.out.println(valueOf(record.get("valore_inquinante_misurato")).getClass().getName() + " VALORE " + record.get("valore_inquinante_misurato"));
+                    String valoreInquinante = valueOf(record.get("valore_inquinante_misurato"));
+                    if (valoreInquinante.equals("null")) {
+                        System.out.println("EVVIVA");
+                        continue;
+                    }
 
-                if (iCittaRepository.existsByNomeCitta(String.valueOf(record.get("comune")))) continue; //ERRATO IO VOGLIO L'UPDATE CON LE CORDINATE
-                cittaModel = new CittaModel(
-                        String.valueOf(record.get("comune")),
-                        String.valueOf(record.get("Longitude")),
-                        String.valueOf(record.get("Latitude"))
-                );
+                    if (iCittaRepository.existsByNomeCittaAndLongitudeAndLatitude(valueOf(record.get("comune")), valueOf(record.get("Longitude")), valueOf(record.get("Latitude")))) {
+                        cittaModel = new CittaModel(
+                                valueOf(record.get("comune")),
+                                valueOf(record.get("Longitude")),
+                                valueOf(record.get("Latitude"))
+                        );
 
-                ariaModel = new AriaModel(
-                        (Objects.equals(String.valueOf(record.get("tipologia_di_area")), "Suburbana")) ? 1 : 2,
-                        LocalDateTime.parse(record.get("data_di_misurazione").getAsString()),
-                        cittaModel
-                );
+                        iCittaRepository.save(cittaModel);
+                    } else
+                        cittaModel = iCittaRepository.findByLongitudeAndLatitude(valueOf(record.get("Longitude")), valueOf(record.get("Latitude")));
 
+                    ariaModel = new AriaModel(
+                            (Objects.equals(valueOf(record.get("tipologia_di_area")), "Suburbana")) ? 1 : 2,
+                            LocalDateTime.parse(record.get("data_di_misurazione").getAsString()),
+                            cittaModel
+                    );
 
-                ariaModelList.add(ariaModel);
+                    iAriaRepository.save(ariaModel);
+
+                    System.out.println(record.get("comune") + " " + i);
+                    //                valoriInquinantiModel = new ValoriInquinantiModel(
+                    //                        valueOf(record.get("inquinante_misurato")),
+                    //                        valueOf(record.get("valore_inquinante_misurato")),
+                    //                        ariaModel
+                    //                );
+
+                    //                iValoriInquinantiRepository.save(valoriInquinantiModel);
+                    //                ariaModelList.add(ariaModel);
+                }
+                System.out.println("Finito il for di " + dataSize);
+            } catch (JsonSyntaxException | NullPointerException e) {
+                controllo = e;
+                if (e.getClass().getName().equals("NullPointerException"))
+                    logger.info("Il server non ha risposto come speravamo, riprovo...");
+                else
+                    logger.error("Errore nella struttura del Json | Errore: " + e);
             }
-        } catch (JsonSyntaxException e) {
-            logger.error("Errore nella struttura del Json | Errore: " + e);
-        }
+        } while (controllo != null && controllo.getClass().getName().equals("NullPointerException"));
     }
 }
