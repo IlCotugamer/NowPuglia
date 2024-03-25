@@ -27,8 +27,9 @@ public class SensoriModel {
     @JoinColumn(name = "CODAria", referencedColumnName = "IDAria")
     private AriaModel ariaInfo;
 
-    public SensoriModel(String longitude, String latitude) {
+    public SensoriModel(String longitude, String latitude, AriaModel ariaInfo) {
         this.longitude = longitude;
         this.latitude = latitude;
+        this.ariaInfo = ariaInfo;
     }
 }

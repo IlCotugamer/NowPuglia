@@ -8,13 +8,13 @@ import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class BeanConfig {
-    @Bean
-    public DateTimeFormatter dateTimeFormatter() {
-        return DateTimeFormatter.ISO_DATE_TIME;
-    }
-
-    @Bean
-    public WebClient.Builder getWebClientBuilder() {
-        return WebClient.builder();
-    }
+//    @Bean
+//    public DateTimeFormatter dateTimeFormatter() {
+//        return DateTimeFormatter.ISO_DATE_TIME;
+//    }
+//
+//    @Bean
+//    public WebClient.Builder getWebClientBuilder() {
+//        return WebClient.builder();
+//    }
 }

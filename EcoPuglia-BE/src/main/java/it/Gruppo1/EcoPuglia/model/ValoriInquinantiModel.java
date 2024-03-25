@@ -24,11 +24,11 @@ public class ValoriInquinantiModel {
     private String valore;
     @ManyToOne
     @JoinColumn(name = "CODAria", referencedColumnName = "IDAria")
-    private AriaModel ariaModel;
+    private AriaModel ariaInfo;
 
-    public ValoriInquinantiModel(String tipoValore, String valore, AriaModel ariaModel) {
+    public ValoriInquinantiModel(String tipoValore, String valore, AriaModel ariaInfo) {
         this.tipoValore = tipoValore;
         this.valore = valore;
-        this.ariaModel = ariaModel;
+        this.ariaInfo = ariaInfo;
     }
 }
