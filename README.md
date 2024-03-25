@@ -1,5 +1,6 @@
 # EcoPuglia
 
+# BE
 Benvenuto nel progetto **EcoPuglia**! Questa applicazione Java Spring Boot è progettata per scaricare periodicamente dati da archivi publici della regione Puglia e salvarli localmente. Nel contesto di questo esempio, vengono scaricati file JSON e CSV relativi all'aria ed all'energia.
 
 ## Prerequisiti
@@ -30,7 +31,7 @@ Benvenuto nel progetto **EcoPuglia**! Questa applicazione Java Spring Boot è pr
 
 ## Utilizzo
 
-L'applicazione scaricherà automaticamente i file ogni due ore. I dettagli dell'attività possono essere monitorati attraverso i log generati dall'applicazione.
+L'applicazione rende disponibile una rest api per l'utilizzo dei dati della puglia e automaticamente aggiornera i dati ogni due ore. I dettagli dell'attività possono essere monitorati attraverso i log generati dall'applicazione.
 
 ## Licenza
 
