@@ -24,16 +24,8 @@ public class CittaModel {
     @NotNull
     @NotEmpty(message = "Il nome della città non può essere vuoto")
     private String nomeCitta;
-    @NotNull
-    @NotEmpty(message = "La longitudine non può essere vuota")
-    private String longitude;
-    @NotNull
-    @NotEmpty(message = "La latitudine non può essere vuota")
-    private String latitude;
 
-    public CittaModel(String nomeCitta, String longitude, String latitude) {
+    public CittaModel(String nomeCitta) {
         this.nomeCitta = nomeCitta;
-        this.longitude = longitude;
-        this.latitude = latitude;
     }
 }

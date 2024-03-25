@@ -1,6 +1,9 @@
 package it.Gruppo1.EcoPuglia.serviceImp;
 
-import com.google.gson.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import it.Gruppo1.EcoPuglia.model.AriaModel;
@@ -24,13 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static java.lang.String.*;
-
 @Service
 public class DataManagerService implements IDataManagerService {
     private final WebClient webClient;
     private static final Logger logger = LoggerFactory.getLogger(DataManagerService.class);
-    private static final Gson gson = new Gson();
     private final List<EnergiaModel> energiaModelList = new ArrayList<>();
     private final List<AriaModel> ariaModelList = new ArrayList<>();
     private final IEnergiaRepository iEnergiaRepository;
@@ -38,7 +38,8 @@ public class DataManagerService implements IDataManagerService {
     private final IValoriInquinantiRepository iValoriInquinantiRepository;
     private final IUtentiRepository iUtentiRepository;
     private final IAriaRepository iAriaRepository;
-    private JsonArray ariaData;
+    private int limit;
+    private JsonNode ariaData;
     private byte[] energiaData;
 
     @Autowired
@@ -76,11 +77,16 @@ public class DataManagerService implements IDataManagerService {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
-                .subscribe(data -> {
-                    JsonObject jsonObject = gson.fromJson(data, JsonObject.class);
-                    String newUrl = url + "&limit=" + jsonObject.getAsJsonObject("result").get("total").getAsInt();
-                    getDataAria(newUrl);
-
+                .subscribe(data -> { // DATA è una stringa
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JsonNode jsonObject = objectMapper.readTree(data);
+                        limit = jsonObject.get("result").get("total").asInt();
+                        String newUrl = url + "&limit=" + limit;
+                        getDataAria(newUrl);
+                    } catch (JsonProcessingException e) {
+                        logger.error("Errore nella lettura del primo json | URL: https://dati.puglia.it/ckan/api/3/action/datastore_search?resource_id=8c96ee29-f19f-4d2f-9bb7-27d057589050");
+                    }
                 });
     }
 
@@ -98,12 +104,15 @@ public class DataManagerService implements IDataManagerService {
                     logger.error("Errore durante la richiesta HTTP", throwable);
                     return Mono.empty();
                 })
-                .subscribe(data -> {
-                    JsonObject jsonObject = gson.fromJson(data, JsonObject.class);
-                    JsonObject result = jsonObject.getAsJsonObject("result");
-                    ariaData = result.getAsJsonArray("records");
+                .subscribe(data -> { // DATA è UNA STRINGA
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JsonNode jsonObject = objectMapper.readTree(data);
+                        ariaData = jsonObject.get("result").get("records"); // TIPO: com.fasterxml.jackson.databind.node.ArrayNode
+                    } catch (JsonProcessingException e) {
+                        logger.error("Errore nella lettura del secondo json con nuovo limite");
+                    }
                 });
-
     }
 
     private void getDataEnergia(String url) {
@@ -135,7 +144,10 @@ public class DataManagerService implements IDataManagerService {
                     continue;
                 }
 
-                cittaModel = new CittaModel(lineRecords[1], "en0", "en0");
+                if (!iCittaRepository.existsByNomeCitta(lineRecords[1])) {
+                    cittaModel = new CittaModel(lineRecords[1]);
+                    iCittaRepository.save(cittaModel);
+                } else cittaModel = iCittaRepository.findByNomeCitta(lineRecords[1]);
 
                 energiaModel = new EnergiaModel(
                         (Objects.equals(lineRecords[2], "Solare")) ? 0 : (Objects.equals(lineRecords[2], "Eolico on-shore")) ? 1 : 2,
@@ -143,71 +155,58 @@ public class DataManagerService implements IDataManagerService {
                         cittaModel
                 );
 
-                if (iCittaRepository.existsByNomeCittaAndLongitudeAndLatitude(cittaModel.getNomeCitta(), cittaModel.getLongitude(), cittaModel.getLatitude())) {
-                    iCittaRepository.save(cittaModel);
-                } else continue;
-
                 if (!iEnergiaRepository.existsByFonteAndPotenzaAndCittaInfo(energiaModel.getFonte(), energiaModel.getPotenza(), cittaModel)) {
                     energiaModelList.add(energiaModel);
                 }
-
             }
         } catch (IOException | CsvException e) {
             logger.error("Errore nella lettura dei dati .csv | Error: " + e);
         }
-
     }
 
     private void letturaAria() {
+        int flag = 0;
         Exception controllo = null;
         do {
             try {
                 AriaModel ariaModel;
                 ValoriInquinantiModel valoriInquinantiModel;
                 CittaModel cittaModel;
-                JsonObject record;
+
                 int dataSize = ariaData.size();
                 for (int i = 0; i < dataSize; i++) {
-                    JsonElement jsonElement = ariaData.get(i);
-                    record = jsonElement.getAsJsonObject();
-                    System.out.println(valueOf(record.get("valore_inquinante_misurato")).getClass().getName() + " VALORE " + record.get("valore_inquinante_misurato"));
-                    String valoreInquinante = valueOf(record.get("valore_inquinante_misurato"));
-                    if (valoreInquinante.equals("null")) {
-                        System.out.println("EVVIVA");
+                    JsonNode record = ariaData.get(i);
+                    if (record.get("valore_inquinante_misurato").asText().equals("null")) {
+//                        System.out.println("EVVIVA");
+                        flag++;
                         continue;
                     }
-
-                    if (iCittaRepository.existsByNomeCittaAndLongitudeAndLatitude(valueOf(record.get("comune")), valueOf(record.get("Longitude")), valueOf(record.get("Latitude")))) {
-                        cittaModel = new CittaModel(
-                                valueOf(record.get("comune")),
-                                valueOf(record.get("Longitude")),
-                                valueOf(record.get("Latitude"))
-                        );
-
-                        iCittaRepository.save(cittaModel);
-                    } else
-                        cittaModel = iCittaRepository.findByLongitudeAndLatitude(valueOf(record.get("Longitude")), valueOf(record.get("Latitude")));
-
-                    ariaModel = new AriaModel(
-                            (Objects.equals(valueOf(record.get("tipologia_di_area")), "Suburbana")) ? 1 : 2,
-                            LocalDateTime.parse(record.get("data_di_misurazione").getAsString()),
-                            cittaModel
-                    );
-
-                    iAriaRepository.save(ariaModel);
-
-                    System.out.println(record.get("comune") + " " + i);
-                    //                valoriInquinantiModel = new ValoriInquinantiModel(
-                    //                        valueOf(record.get("inquinante_misurato")),
-                    //                        valueOf(record.get("valore_inquinante_misurato")),
-                    //                        ariaModel
-                    //                );
-
-                    //                iValoriInquinantiRepository.save(valoriInquinantiModel);
-                    //                ariaModelList.add(ariaModel);
+//
+//                    if (!iCittaRepository.existsByNomeCitta(String.valueOf(record.get("comune")))) {
+//                        cittaModel = new CittaModel(String.valueOf(record.get("comune")));
+//                        iCittaRepository.save(cittaModel);
+//                    } else cittaModel = iCittaRepository.findByNomeCitta(String.valueOf(record.get("comune")));
+//
+//                    ariaModel = new AriaModel(
+//                            (Objects.equals(String.valueOf(record.get("tipologia_di_area")), "Suburbana")) ? 1 : 2,
+//                            LocalDateTime.parse(record.get("data_di_misurazione").getAsString()),
+//                            cittaModel
+//                    );
+//
+//                    iAriaRepository.save(ariaModel);
+//
+//                    System.out.println(record.get("comune") + " " + i);
+//                    //                valoriInquinantiModel = new ValoriInquinantiModel(
+//                    //                        valueOf(record.get("inquinante_misurato")),
+//                    //                        valueOf(record.get("valore_inquinante_misurato")),
+//                    //                        ariaModel
+//                    //                );
+//
+//                    //                iValoriInquinantiRepository.save(valoriInquinantiModel);
+//                    //                ariaModelList.add(ariaModel);
                 }
-                System.out.println("Finito il for di " + dataSize);
-            } catch (JsonSyntaxException | NullPointerException e) {
+//                System.out.println("Finito il for di " + dataSize);
+            } catch (NullPointerException e) { // JsonProcessingException |
                 controllo = e;
                 if (e.getClass().getName().equals("NullPointerException"))
                     logger.info("Il server non ha risposto come speravamo, riprovo...");
@@ -215,5 +214,8 @@ public class DataManagerService implements IDataManagerService {
                     logger.error("Errore nella struttura del Json | Errore: " + e);
             }
         } while (controllo != null && controllo.getClass().getName().equals("NullPointerException"));
+        if (flag == limit) {
+            logger.info("OGGI NON CI SONO MISURAZIONI PER L'ARIA");
+        }
     }
 }
