@@ -3,7 +3,11 @@ package it.Gruppo1.EcoPuglia.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -14,22 +18,24 @@ import lombok.*;
 @Table(name  = "Sensori")
 public class SensoriModel {
     @Id
-    @Column(name = "IDSensore")
+    @Column(name = "IDSensore", length = 3)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotNull
     @NotEmpty(message = "La longitudine non può essere vuota")
+    @Column(name = "longitudine", length = 10)
     private String longitude;
     @NotNull
     @NotEmpty(message = "La latitudine non può essere vuota")
+    @Column(name = "latitudine", length = 10)
     private String latitude;
     @ManyToOne
-    @JoinColumn(name = "CODAria", referencedColumnName = "IDAria")
-    private AriaModel ariaInfo;
+    @JoinColumn(name = "CODCitta", referencedColumnName = "IDCitta")
+    private CittaModel cittaInfo;
 
-    public SensoriModel(String longitude, String latitude, AriaModel ariaInfo) {
+    public SensoriModel(String longitude, String latitude, CittaModel cittaModel) {
         this.longitude = longitude;
         this.latitude = latitude;
-        this.ariaInfo = ariaInfo;
+        this.cittaInfo = cittaModel;
     }
 }

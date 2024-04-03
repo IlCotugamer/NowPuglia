@@ -14,13 +14,15 @@ import lombok.*;
 @Table(name  = "Energia")
 public class EnergiaModel {
     @Id
-    @Column(name = "IDEnergia")
+    @Column(name = "IDEnergia", length = 3)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotNull(message = "Il campo fonte non può essere vuoto")
+    @Column(name = "fonte", length = 1)
     private int fonte;
     @NotNull
     @NotEmpty(message = "Il campo potenza non può essere vuoto")
+    @Column(name = "potenza", length = 4)
     private String potenza;
     @ManyToOne
     @JoinColumn(name = "CODCitta", referencedColumnName = "IDCitta")

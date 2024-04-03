@@ -15,20 +15,23 @@ import lombok.*;
 public class ValoriInquinantiModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "IDValoreInquinante", length = 3)
     private int id;
     @NotNull
     @NotEmpty(message = "Il campo tipoValore non può essere vuoto")
+    @Column(name = "tipoValore", length = 10)
     private String tipoValore;
     @NotNull
     @NotEmpty(message = "Il campo valore non può essere vuoto")
+    @Column(name = "valore", length = 3)
     private String valore;
     @ManyToOne
-    @JoinColumn(name = "CODAria", referencedColumnName = "IDAria")
-    private AriaModel ariaInfo;
+    @JoinColumn(name = "CODSensore", referencedColumnName = "IDSensore")
+    private SensoriModel sensoreInfo;
 
-    public ValoriInquinantiModel(String tipoValore, String valore, AriaModel ariaInfo) {
+    public ValoriInquinantiModel(String tipoValore, String valore, SensoriModel sensoreInfo) {
         this.tipoValore = tipoValore;
         this.valore = valore;
-        this.ariaInfo = ariaInfo;
+        this.sensoreInfo = sensoreInfo;
     }
 }
