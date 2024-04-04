@@ -23,7 +23,7 @@ public class ValoriInquinantiModel {
     private String tipoValore;
     @NotNull
     @NotEmpty(message = "Il campo valore non può essere vuoto")
-    @Column(name = "valore", length = 3)
+    @Column(name = "valore", length = 10)
     private String valore;
     @ManyToOne
     @JoinColumn(name = "CODSensore", referencedColumnName = "IDSensore")

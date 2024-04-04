@@ -3,10 +3,9 @@ package it.Gruppo1.EcoPuglia.controller;
 import it.Gruppo1.EcoPuglia.model.UtentiModel;
 import it.Gruppo1.EcoPuglia.service.IUsersManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,8 +18,17 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String aggiungiUtente(@RequestBody UtentiModel utentiModel) {
+    public String register(@RequestBody @Validated UtentiModel utentiModel) throws MethodArgumentNotValidException {
         return "test";
     }
 
+    @PostMapping("/login")
+    public String login(@RequestBody UtentiModel utentiModel) {
+        return "test";
+    }
+
+    @PostMapping("/passwdreset")
+    public String changePassword(@RequestBody @Validated UtentiModel utentiModel) {
+        return "test";
+    }
 }

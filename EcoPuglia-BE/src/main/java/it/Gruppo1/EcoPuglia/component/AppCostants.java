@@ -1,56 +1,52 @@
 package it.Gruppo1.EcoPuglia.component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @Component
 public class AppCostants {
-    private final String pathAria = "src/main/resources/Aria/inq.json";
-    private final String pathEnergia = "src/main/resources/Energia/energia.csv";
-    private final String pathLimit = "src/main/resources/limit.txt";
-    private int totalLimit;
+    private String energiaUrl = "http://www.opendataipres.it/dataset/85045ff8-5e20-4f26-8585-2f2ba0a5c3d5/resource/e5e12518-69d8-46b8-8068-9dc89d356cad/download/richieste-connessione-puglia.csv&type=resource";
+    private String ariaUrl = "https://dati.puglia.it/ckan/api/3/action/datastore_search?resource_id=8c96ee29-f19f-4d2f-9bb7-27d057589050";
+    private String finalAriaUrl;
+    private int ariaLimit;
+    private final WebClient webClient;
+    private static final Logger logger = LoggerFactory.getLogger(AppCostants.class);
 
-    private static final Logger logger = Logger.getLogger(AppCostants.class.getName());
-
-    private void saveLimit() {
-        try {
-            FileWriter fileWriter = new FileWriter(pathLimit);
-            fileWriter.write(totalLimit);
-            fileWriter.close();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Errore nella scrittura del file | File: " + pathLimit + " | Errore: " + e);
-        }
+    @Autowired
+    public AppCostants(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
     }
 
-    public void setTotalLimit(int totalLimit) {
-        this.totalLimit = totalLimit;
-        saveLimit();
-    }
-
-    public int readTotalLimit() {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(pathLimit));
-            String line = reader.readLine();
-            reader.close();
-
-            return Integer.parseInt(line);
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Errore nella lettura del file | File: " + pathLimit + " | Errore: " + e);
-            return -1;
-        }
+    public String getCorrectAriaUrl() {
+        webClient.get().uri(ariaUrl)
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(String.class)
+                .subscribe(data -> {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JsonNode jsonObject = objectMapper.readTree(data);
+                        ariaLimit = jsonObject.get("result").get("total").asInt();
+                        finalAriaUrl = ariaUrl + "&limit=" + ariaLimit;
+                    } catch (JsonProcessingException e) {
+                        logger.error("Errore nella lettura del json | URL: https://dati.puglia.it/ckan/api/3/action/datastore_search?resource_id=8c96ee29-f19f-4d2f-9bb7-27d057589050 | Error: " + e.getClass().getName());
+                    }
+                });
+        System.out.println(
+                + " SONO QUI");
+        return finalAriaUrl;
     }
 }
