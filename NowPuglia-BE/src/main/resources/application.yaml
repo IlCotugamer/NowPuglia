@@ -3,7 +3,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 1234
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/EcoPuglia
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/NowPuglia
   jpa:
     hibernate:
       ddl-auto: create
@@ -11,7 +11,3 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: 'false'
     open-in-view: true
-  data:
-    redis:
-      host: localhost
-      port: 6379

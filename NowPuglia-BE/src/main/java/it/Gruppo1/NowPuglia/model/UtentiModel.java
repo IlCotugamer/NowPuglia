@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -57,4 +58,13 @@ public class UtentiModel {
     @ManyToOne
     @JoinColumn(name = "CODAbbonamento", referencedColumnName = "IDAbbonamento")
     private AbbonamentiModel abbonamentoInfo;
+
+    public UtentiModel(String nome, String cognome, LocalDate dataNascita, int tipoUtente, String username,String encode) {
+        this.nome = nome;
+        this.cognome = cognome;
+        this.dataNascita = dataNascita.atStartOfDay();
+        this.tipoUtente = tipoUtente;
+        this.username = username;
+        this.password = encode;
+    }
 }

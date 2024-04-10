@@ -27,9 +27,4 @@ public class WebConfig implements WebMvcConfigurer {
                         HttpMethod.POST.name()
                 );
     }
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.debug().ignoring().requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**", "/favicon.ico");
-    }
 }
