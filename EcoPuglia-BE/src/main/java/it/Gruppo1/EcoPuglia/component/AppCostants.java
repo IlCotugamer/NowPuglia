@@ -42,11 +42,9 @@ public class AppCostants {
                         ariaLimit = jsonObject.get("result").get("total").asInt();
                         finalAriaUrl = ariaUrl + "&limit=" + ariaLimit;
                     } catch (JsonProcessingException e) {
-                        logger.error("Errore nella lettura del json | URL: https://dati.puglia.it/ckan/api/3/action/datastore_search?resource_id=8c96ee29-f19f-4d2f-9bb7-27d057589050 | Error: " + e.getClass().getName());
+                        logger.error("Errore nella lettura del json | URL: https://dati.puglia.it/ckan/api/3/action/datastore_search?resource_id=8c96ee29-f19f-4d2f-9bb7-27d057589050 | Error: {}", e.getClass().getName());
                     }
                 });
-        System.out.println(
-                + " SONO QUI");
         return finalAriaUrl;
     }
 }

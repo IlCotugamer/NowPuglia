@@ -54,12 +54,12 @@ public class DataManagerService implements IDataManagerService {
     public void runDataManager() {
         fetchAriaData(appCostants.getCorrectAriaUrl());
         fetchEnergiaData(appCostants.getEnergiaUrl());
-        logger.info("Dati ricevuti correttamente | Time: " + LocalTime.now());
+        logger.info("Dati ricevuti correttamente | Time: {}", LocalTime.now());
 
         processEnergiaData();
         processAriaData();
-        logger.info("Dati elaborati correttamente | Time: " + LocalTime.now());
-        logger.info("Dati salvati con successo nel database | Time: " + LocalTime.now());
+        logger.info("Dati elaborati correttamente | Time: {}", LocalTime.now());
+        logger.info("Dati salvati con successo nel database | Time: {}", LocalTime.now());
 
         System.out.println();
     }
@@ -127,7 +127,7 @@ public class DataManagerService implements IDataManagerService {
                 }
             }
         } catch (IOException | CsvException e) {
-            logger.error("Errore nella lettura dei dati .csv | Error: " + e.getClass().getName());
+            logger.error("Errore nella lettura dei dati .csv | Error: {}", e.getClass().getName());
         }
     }
 
@@ -170,7 +170,7 @@ public class DataManagerService implements IDataManagerService {
                 if (e.getClass().getName().equals("java.lang.NullPointerException")) {
                     logger.error("Il server non ha risposto come speravamo, riprovo...");
                 } else {
-                    logger.error("Errore nella struttura del Json | Errore: " + e.getClass().getName());
+                    logger.error("Errore nella struttura del Json | Errore: {}", e.getClass().getName());
                 }
             }
         } while (controllo != null && controllo.getClass().getName().equals("NullPointerException"));
@@ -178,7 +178,7 @@ public class DataManagerService implements IDataManagerService {
         if (flag == appCostants.getAriaLimit()) {
             logger.error("OGGI NON CI SONO MISURAZIONI PER L'ARIA");
         } else {
-            logger.warn("Sono state saltate " + flag + " misurazioni nulle per gli inquinanti dell'aria");
+            logger.warn("Sono state saltate {} misurazioni nulle per gli inquinanti dell'aria", flag);
         }
     }
 }
