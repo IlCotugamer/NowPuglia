@@ -15,7 +15,7 @@ Benvenuto nel progetto **NowPuglia**! Questa applicazione Java Spring Boot è pr
 1. Clona il repository:
 
    ```bash
-   git clone https://github.com/IlCotugamer/NowPuglia-BE.git
+   git clone https://github.com/IlCotugamer/NowPuglia.git
    ```
 
 2. Apri il progetto nel tuo IDE preferito.
