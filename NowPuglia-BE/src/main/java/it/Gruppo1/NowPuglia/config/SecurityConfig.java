@@ -29,7 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/").hasAuthority("no")
+                        .requestMatchers("/").permitAll()
                 )
                 .sessionManagement(
                         sessionManagement -> sessionManagement
