@@ -23,4 +23,8 @@ public class AbbonamentiModel {
     @NotNull(message = "L'area non può essere vuota")
     @Column(name = "tipoAbbonamento", length = 3)
     private String tipoAbbonamento;
+
+    public AbbonamentiModel(String tipoAbbonamento) {
+        this.tipoAbbonamento = tipoAbbonamento;
+    }
 }

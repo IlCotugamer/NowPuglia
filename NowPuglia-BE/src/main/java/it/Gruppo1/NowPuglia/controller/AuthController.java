@@ -6,6 +6,10 @@ import it.Gruppo1.NowPuglia.repository.IUtentiRepository;
 import it.Gruppo1.NowPuglia.service.IUsersManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    private final AuthenticationManager authenticationManager;
     private final IUsersManagerService iUsersManagerService;
     private final IUtentiRepository iUtentiRepository;
 
     @Autowired
-    public AuthController(IUsersManagerService iUsersManagerService, IUtentiRepository iUtentiRepository) {
+    public AuthController(AuthenticationManager authenticationManager, IUsersManagerService iUsersManagerService, IUtentiRepository iUtentiRepository) {
+        this.authenticationManager = authenticationManager;
         this.iUsersManagerService = iUsersManagerService;
         this.iUtentiRepository = iUtentiRepository;
     }
@@ -46,7 +52,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @Validated UtentiDto utentiDto) {
-
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(utentiDto.getUsername(), utentiDto.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return ResponseEntity.ok("Accesso completata con successo");
     }
 

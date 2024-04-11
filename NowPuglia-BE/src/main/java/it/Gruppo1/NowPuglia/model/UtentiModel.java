@@ -39,11 +39,8 @@ public class UtentiModel {
     @Column(name = "cognome", length = 15)
     private String cognome;
     @NotNull
-    @NotEmpty(message = "Il campo dataNascita non può essere vuoto")
     @Column(name = "dataNascita")
     private LocalDate dataNascita;
-    @NotNull
-    @NotEmpty(message = "Il campo tipoUtente non può essere vuoto")
     @Column(name = "tipoUtente", length = 1)
     private int tipoUtente;
     @NotNull

@@ -21,7 +21,6 @@ public class UtentiDto {
     @NotNull
     @NotEmpty(message = "Il campo cognome non può essere vuoto")
     private String cognome;
-    @NotNull
     private LocalDate dataNascita;
     @NotNull
     private String username;
