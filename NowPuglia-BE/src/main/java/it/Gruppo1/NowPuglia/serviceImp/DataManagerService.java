@@ -58,31 +58,26 @@ public class DataManagerService implements IDataManagerService {
 
         processEnergiaData();
         processAriaData();
-        logger.info("Dati elaborati correttamente | Time: {}", LocalTime.now());
-        logger.info("Dati salvati con successo nel database | Time: {}", LocalTime.now());
-
-        System.out.println();
+        logger.info("Dati elaborati e salvati correttamente | Time: {}", LocalTime.now());
     }
 
     private void fetchAriaData(String url) {
-        System.out.println(url + " UELLEL");
-        webClient.get().uri(url)
+        String data = webClient.get().uri(url)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .onErrorResume(throwable -> {
                     logger.error("Errore durante la richiesta HTTP", throwable);
                     return Mono.empty();
-                })
-                .subscribe(data -> {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    try {
-                        JsonNode jsonObject = objectMapper.readTree(data);
-                        ariaData = jsonObject.get("result").get("records");
-                    } catch (JsonProcessingException e) {
-                        logger.error("Errore nella lettura del secondo json con nuovo limite");
-                    }
-                });
+                }).block();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonObject = objectMapper.readTree(data);
+            ariaData = jsonObject.get("result").get("records");
+        } catch (JsonProcessingException e) {
+            logger.error("Errore nella lettura del secondo json con nuovo limite");
+        }
     }
 
     private void fetchEnergiaData(String url) {

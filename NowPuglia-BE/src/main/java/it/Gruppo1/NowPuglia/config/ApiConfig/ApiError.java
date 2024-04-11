@@ -1,4 +1,4 @@
-package it.Gruppo1.NowPuglia.config;
+package it.Gruppo1.NowPuglia.config.ApiConfig;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

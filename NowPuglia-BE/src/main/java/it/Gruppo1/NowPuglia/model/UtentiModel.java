@@ -17,7 +17,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -42,7 +41,7 @@ public class UtentiModel {
     @NotNull
     @NotEmpty(message = "Il campo dataNascita non può essere vuoto")
     @Column(name = "dataNascita")
-    private LocalDateTime dataNascita;
+    private LocalDate dataNascita;
     @NotNull
     @NotEmpty(message = "Il campo tipoUtente non può essere vuoto")
     @Column(name = "tipoUtente", length = 1)
@@ -62,7 +61,7 @@ public class UtentiModel {
     public UtentiModel(String nome, String cognome, LocalDate dataNascita, int tipoUtente, String username,String encode) {
         this.nome = nome;
         this.cognome = cognome;
-        this.dataNascita = dataNascita.atStartOfDay();
+        this.dataNascita = dataNascita;
         this.tipoUtente = tipoUtente;
         this.username = username;
         this.password = encode;

@@ -31,20 +31,21 @@ public class AppCostants {
     }
 
     public String getCorrectAriaUrl() {
-        webClient.get().uri(ariaUrl)
+        String data = webClient.get().uri(ariaUrl)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
-                .subscribe(data -> {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    try {
-                        JsonNode jsonObject = objectMapper.readTree(data);
-                        ariaLimit = jsonObject.get("result").get("total").asInt();
-                        finalAriaUrl = ariaUrl + "&limit=" + ariaLimit;
-                    } catch (JsonProcessingException e) {
-                        logger.error("Errore nella lettura del json | URL: https://dati.puglia.it/ckan/api/3/action/datastore_search?resource_id=8c96ee29-f19f-4d2f-9bb7-27d057589050 | Error: {}", e.getClass().getName());
-                    }
-                });
+                .block();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonObject = objectMapper.readTree(data);
+            int ariaLimit = jsonObject.get("result").get("total").asInt();
+            finalAriaUrl = ariaUrl + "&limit=" + ariaLimit;
+        } catch (JsonProcessingException e) {
+            logger.error("Errore nella lettura del json | URL: {} | Error: {}", this.ariaUrl, e.getClass().getName());
+        }
+
         return finalAriaUrl;
     }
 }

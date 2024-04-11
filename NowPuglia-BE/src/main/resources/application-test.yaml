@@ -11,5 +11,3 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: 'false'
     open-in-view: true
-  profiles:
-    active: dev

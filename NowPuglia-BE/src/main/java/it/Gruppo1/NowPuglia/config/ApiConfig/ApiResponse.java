@@ -1,4 +1,4 @@
-package it.Gruppo1.NowPuglia.config;
+package it.Gruppo1.NowPuglia.config.ApiConfig;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
