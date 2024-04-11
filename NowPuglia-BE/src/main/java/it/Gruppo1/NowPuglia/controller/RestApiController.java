@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class RestApiController {
-    @GetMapping("/")
+    @GetMapping("/ciao")
     private String hello() {
         return "Hello World";
     }

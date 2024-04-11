@@ -55,12 +55,13 @@ public class UtentiModel {
     @JoinColumn(name = "CODAbbonamento", referencedColumnName = "IDAbbonamento")
     private AbbonamentiModel abbonamentoInfo;
 
-    public UtentiModel(String nome, String cognome, LocalDate dataNascita, int tipoUtente, String username,String encode) {
+    public UtentiModel(String nome, String cognome, LocalDate dataNascita, int tipoUtente, String username,String encode, AbbonamentiModel abbonamentoInfo) {
         this.nome = nome;
         this.cognome = cognome;
         this.dataNascita = dataNascita;
         this.tipoUtente = tipoUtente;
         this.username = username;
         this.password = encode;
+        this.abbonamentoInfo = abbonamentoInfo;
     }
 }

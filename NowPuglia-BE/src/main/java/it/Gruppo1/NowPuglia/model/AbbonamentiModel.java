@@ -20,8 +20,8 @@ public class AbbonamentiModel {
     @Column(name = "IDAbbonamento", length = 1)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @NotNull(message = "L'area non può essere vuota")
-    @Column(name = "tipoAbbonamento", length = 3)
+    @NotNull(message = "Il tipo di abbonamento non può essere vuoto")
+    @Column(name = "tipoAbbonamento", length = 8)
     private String tipoAbbonamento;
 
     public AbbonamentiModel(String tipoAbbonamento) {

@@ -34,25 +34,20 @@ public class DataBaseUserDetailsService implements UserDetailsService {
         return new User(utenti.getUsername(), utenti.getPassword(), getAuthorities(utenti));
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(UtentiModel utente) {
+    public static Collection<? extends GrantedAuthority> getAuthorities(UtentiModel utente) {
         String[] userRoles = new String[]{mapAbbonamentoToRole(utente.getAbbonamentoInfo().getTipoAbbonamento())};
         return Arrays.stream(userRoles)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
 
-    private String mapAbbonamentoToRole(String tipoAbbonamento) {
-        switch (tipoAbbonamento) {
-            case "gratuito":
-                return "ROLE_USER";
-            case "basic":
-                return "ROLE_BASIC";
-            case "premium":
-                return "ROLE_MEMBER";
-            case "azienda":
-                return "ROLE_COMPANY";
-            default:
-                throw new IllegalArgumentException("Tipo di abbonamento non valido");
-        }
+    private static String mapAbbonamentoToRole(String tipoAbbonamento) {
+        return switch (tipoAbbonamento) {
+            case "USER" -> "ROLE_USER";
+            case "BASIC" -> "ROLE_BASIC";
+            case "MEMBER" -> "ROLE_MEMBER";
+            case "COMPANY" -> "ROLE_COMPANY";
+            default -> throw new IllegalArgumentException("Tipo di abbonamento non valido");
+        };
     }
 }

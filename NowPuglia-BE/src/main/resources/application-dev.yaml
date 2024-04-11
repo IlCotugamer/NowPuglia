@@ -11,4 +11,17 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: 'false'
     open-in-view: true
-
+logging:
+  level:
+    root: DEBUG
+    it:
+      Gruppo1: DEBUG
+    org:
+      hibernate:
+        stat: debug
+        SQL_SLOW: info
+        SQL: debug
+        cache: debug
+        orm:
+          jdbc:
+            bind: trace
