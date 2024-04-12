@@ -58,23 +58,37 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @Validated UtentiLoginDto utentiDto, HttpServletRequest request, HttpServletResponse response) {
         UtentiModel utente = iUtentiRepository.findByUsername(utentiDto.getUsername());
-
-        Collection<? extends GrantedAuthority> authorities = DataBaseUserDetailsService.getAuthorities(utente);
-        if (passwordEncoder.matches(utentiDto.getPassword(), utente.getPassword())) {
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(utentiDto.getUsername(), utentiDto.getPassword(), authorities);
-            token.setDetails(utentiDto);
-            Authentication auth = authenticationManager.authenticate(token);
-            SecurityContext context = securityContextHolderStrategy.createEmptyContext();
-            context.setAuthentication(auth);
-            securityContextHolderStrategy.setContext(context);
-            securityContextRepository.saveContext(context, request, response);
-            System.out.println(token + "TOKEN");
-            System.out.println(authorities);
+        if (utente != null) {
+            Collection<? extends GrantedAuthority> authorities = DataBaseUserDetailsService.getAuthorities(utente);
+            if (passwordEncoder.matches(utentiDto.getPassword(), utente.getPassword())) {
+                UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(utentiDto.getUsername(), utentiDto.getPassword(), authorities);
+                token.setDetails(utentiDto);
+                Authentication auth = authenticationManager.authenticate(token);
+                SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+                context.setAuthentication(auth);
+                securityContextHolderStrategy.setContext(context);
+                securityContextRepository.saveContext(context, request, response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username o password errati");
+            }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username o password errati");
         }
-
         return ResponseEntity.ok("Accesso completato con successo");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context.getAuthentication().equals(authentication) && context.getAuthentication().getPrincipal() != null) {
+            request.getSession().invalidate();
+            context.setAuthentication(null);
+            SecurityContextHolder.clearContext();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sessione non valida, utente non autenticato");
+        }
+
+        return ResponseEntity.ok("Logout completato");
     }
 
     @PostMapping("/passwordReset")

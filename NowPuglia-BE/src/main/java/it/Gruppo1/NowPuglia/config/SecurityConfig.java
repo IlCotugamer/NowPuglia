@@ -1,6 +1,7 @@
 package it.Gruppo1.NowPuglia.config;
 
 import it.Gruppo1.NowPuglia.serviceImp.DataBaseUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 import java.util.Collections;
 
@@ -55,8 +57,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
                         .requestMatchers(HttpMethod.GET, "/ciao").hasAnyRole("USER")
-                        .requestMatchers("/api/auth/logout").permitAll()
                 )
                 .sessionManagement(
                         sessionManagement -> sessionManagement
@@ -64,15 +66,14 @@ public class SecurityConfig {
                                 .sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::newSession)
                                 .maximumSessions(1)
                 )
-                .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .logoutSuccessHandler(((request, response, authentication) ->
-                                SecurityContextHolder.clearContext()
-                                )
-                        )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getOutputStream().println("{ \"Error\": \"Non autorizzato\" }");
+                        })
                 )
+
                 .userDetailsService(dataBaseUserDetailsService)
                 .build();
     }

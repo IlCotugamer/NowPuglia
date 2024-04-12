@@ -49,7 +49,7 @@ public class UtentiModel {
     private String username;
     @NotNull
     @NotEmpty(message = "Il campo password non può essere vuoto")
-    @Column(name = "password")
+    @Column(name = "password", length = 60)
     private String password;
     @ManyToOne
     @JoinColumn(name = "CODAbbonamento", referencedColumnName = "IDAbbonamento")
