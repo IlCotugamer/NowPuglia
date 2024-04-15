@@ -1,4 +1,4 @@
-package it.Gruppo1.NowPuglia.dto;
+package it.Gruppo1.NowPuglia.dto.JsonResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnergiaDto {
-    private int fonte;
-    private String potenza;
+public class MisurazioniDto {
+    private String citta;
+    private EnergiaDto energiaDto;
+    private AriaDto ariaDto;
 }

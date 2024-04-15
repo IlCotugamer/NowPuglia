@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
                         .requestMatchers(HttpMethod.POST, "/api/auth/passwordReset").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
+                        .requestMatchers(HttpMethod.POST, "/api/auth/changePlan").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
                         .requestMatchers(HttpMethod.GET, "/ciao").hasAnyRole("USER")
                 )
                 .sessionManagement(

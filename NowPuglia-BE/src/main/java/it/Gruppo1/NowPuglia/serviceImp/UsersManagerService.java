@@ -1,13 +1,11 @@
 package it.Gruppo1.NowPuglia.serviceImp;
 
-import it.Gruppo1.NowPuglia.dto.PasswordResetDto;
 import it.Gruppo1.NowPuglia.dto.UtentiRegisterDto;
 import it.Gruppo1.NowPuglia.model.UtentiModel;
 import it.Gruppo1.NowPuglia.repository.IAbbonamentiRepository;
 import it.Gruppo1.NowPuglia.repository.IUtentiRepository;
 import it.Gruppo1.NowPuglia.service.IUsersManagerService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -19,14 +17,12 @@ public class UsersManagerService implements IUsersManagerService {
     private final IAbbonamentiRepository iAbbonamentiRepository;
     private final IUtentiRepository iUtentiRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ProjectInfoAutoConfiguration projectInfoAutoConfiguration;
 
     @Autowired
-    public UsersManagerService(PasswordEncoder passwordEncoder, IAbbonamentiRepository iAbbonamentiRepository, IUtentiRepository iUtentiRepository, ProjectInfoAutoConfiguration projectInfoAutoConfiguration) {
+    public UsersManagerService(PasswordEncoder passwordEncoder, IAbbonamentiRepository iAbbonamentiRepository, IUtentiRepository iUtentiRepository) {
         this.passwordEncoder = passwordEncoder;
         this.iAbbonamentiRepository = iAbbonamentiRepository;
         this.iUtentiRepository = iUtentiRepository;
-        this.projectInfoAutoConfiguration = projectInfoAutoConfiguration;
     }
 
     @Override

@@ -1,9 +1,11 @@
 package it.Gruppo1.NowPuglia.controller;
 
+import it.Gruppo1.NowPuglia.dto.ChangePlanDto;
 import it.Gruppo1.NowPuglia.dto.PasswordResetDto;
 import it.Gruppo1.NowPuglia.dto.UtentiLoginDto;
 import it.Gruppo1.NowPuglia.dto.UtentiRegisterDto;
 import it.Gruppo1.NowPuglia.model.UtentiModel;
+import it.Gruppo1.NowPuglia.repository.IAbbonamentiRepository;
 import it.Gruppo1.NowPuglia.repository.IUtentiRepository;
 import it.Gruppo1.NowPuglia.service.IUsersManagerService;
 import it.Gruppo1.NowPuglia.serviceImp.DataBaseUserDetailsService;
@@ -39,20 +41,22 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+    private final IAbbonamentiRepository iAbbonamentiRepository;
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, IUsersManagerService iUsersManagerService, IUtentiRepository iUtentiRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(AuthenticationManager authenticationManager, IUsersManagerService iUsersManagerService, IUtentiRepository iUtentiRepository, PasswordEncoder passwordEncoder, IAbbonamentiRepository iAbbonamentiRepository) {
         this.authenticationManager = authenticationManager;
         this.iUsersManagerService = iUsersManagerService;
         this.iUtentiRepository = iUtentiRepository;
         this.passwordEncoder = passwordEncoder;
+        this.iAbbonamentiRepository = iAbbonamentiRepository;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Validated UtentiRegisterDto utenti) {
-        if (iUtentiRepository.existsByUsername(utenti.getUsername()))
+    public ResponseEntity<String> register(@RequestBody @Validated UtentiRegisterDto utente) {
+        if (iUtentiRepository.existsByUsername(utente.getUsername()))
             return ResponseEntity.badRequest().body("Username già in uso");
-        iUsersManagerService.userRegistration(utenti);
+        iUsersManagerService.userRegistration(utente);
         return ResponseEntity.ok("Registrazione completata con successo");
     }
 
@@ -117,7 +121,16 @@ public class AuthController {
     }
 
     @PostMapping("/changePlan")
-    public ResponseEntity<String> changePlan(@RequestBody @Validated UtentiModel utentiModel) {
+    public ResponseEntity<String> changePlan(@RequestBody @Validated ChangePlanDto changePlanDto) {
+        UtentiModel utentiModel = iUtentiRepository.findByUsername(iUsersManagerService.getUsernameFromToken());
+        if (utentiModel != null) {
+            if (iAbbonamentiRepository.findById(changePlanDto.getPlanNumber()) != null) {
+                utentiModel.setAbbonamentoInfo(iAbbonamentiRepository.findById(changePlanDto.getPlanNumber()));
+                iUtentiRepository.save(utentiModel);
+            } else
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Abbonamento non valido");
+        } else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Utente non valido");
         return ResponseEntity.ok("Password cambiata con successo");
     }
 }
