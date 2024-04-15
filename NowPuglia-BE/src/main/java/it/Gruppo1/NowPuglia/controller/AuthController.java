@@ -1,5 +1,6 @@
 package it.Gruppo1.NowPuglia.controller;
 
+import it.Gruppo1.NowPuglia.dto.PasswordResetDto;
 import it.Gruppo1.NowPuglia.dto.UtentiLoginDto;
 import it.Gruppo1.NowPuglia.dto.UtentiRegisterDto;
 import it.Gruppo1.NowPuglia.model.UtentiModel;
@@ -78,21 +79,40 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> logout(HttpServletRequest request) {
         SecurityContext context = SecurityContextHolder.getContext();
-        if (context.getAuthentication().equals(authentication) && context.getAuthentication().getPrincipal() != null) {
-            request.getSession().invalidate();
-            context.setAuthentication(null);
-            SecurityContextHolder.clearContext();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sessione non valida, utente non autenticato");
-        }
-
+        request.getSession().invalidate();
+        context.setAuthentication(null);
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok("Logout completato");
     }
 
     @PostMapping("/passwordReset")
-    public ResponseEntity<String> changePassword(@RequestBody @Validated UtentiModel utentiModel) {
+    public ResponseEntity<String> changePassword(@RequestBody @Validated PasswordResetDto passwordResetDto) {
+        if (passwordResetDto == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Richiesta non valida");
+        }
+        String currentPassword = passwordResetDto.getCurrentPassword();
+        String newPassword = passwordResetDto.getNewPassword();
+        String confirmPassword = passwordResetDto.getConfirmPassword();
+        if (currentPassword == null || newPassword == null || confirmPassword == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le password non possono essere nulle");
+        }
+        UtentiModel utentiModel = iUtentiRepository.findByUsername(iUsersManagerService.getUsernameFromToken());
+        if (utentiModel != null) {
+            if (passwordEncoder.matches(currentPassword, utentiModel.getPassword())) {
+                if (newPassword.equals(confirmPassword)) {
+                    iUsersManagerService.passwordReset(
+                            iUsersManagerService.getUsernameFromToken(),
+                            newPassword,
+                            passwordEncoder
+                    );
+                } else
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Le password non coincidono");
+            } else
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password errata");
+        } else
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Utente non valido");
         return ResponseEntity.ok("Password cambiata con successo");
     }
 
