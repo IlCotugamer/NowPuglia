@@ -13,16 +13,15 @@ function handleFormSubmit(event) {
     cognome: lastName,
     dataNascita: birthdayDate,
     email: emailAddress,
-    password: userType,
-    abbonamentoInfo: password
+    password: password,
+    abbonamentoInfo: parseInt(userType)
   };
 
-  // Crea una nuova richiesta XMLHttpRequest
+
   let xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4) {
       if (this.status == 200) {
-        // Gestisci la risposta qui se necessario
         console.log("Richiesta POST completata con successo");
       } else {
         console.error("Si è verificato un errore durante la richiesta POST");
@@ -31,11 +30,11 @@ function handleFormSubmit(event) {
   };
 
   // Apre una richiesta POST verso l'URL desiderato
-  xhttp.open("POST", "url_della_tua_risorsa_di_destinazione", true);
+  xhttp.open("POST", "http://localhost:8080/api/auth/register", true);
   xhttp.setRequestHeader("Content-Type", "application/json");
 
   // Invia i dati del form come JSON
-  xhttp.send(JSON.stringify(userData));
+  xhttp.send(userData);
 }
 
 // Aggiungi l'event listener al form quando il documento è pronto

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NowPuglia | Registrazione</title>
+    <link rel="icon" href="img/logo.png" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -11,6 +12,12 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="css/register.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
@@ -21,6 +28,7 @@
             <img
               src="/img/NowPuglia_logo.png"
               alt="EcoPuglia_logo"
+              id="NowPugliaImage"
               class="d-inline-block align-text-top"
               onclick="location.href='index.html'"
             />
@@ -65,9 +73,9 @@
         </div>
       </nav>
     </header>
-    <section class="vh-100 gradient-custom">
-      <div class="container py-5 h-100">
-        <div class="row justify-content-center align-items-center h-100">
+    <section class="content gradient-custom">
+      <div class="container py-5 ">
+        <div class="row justify-content-center align-items-center">
           <div class="col-12 col-lg-9 col-xl-7">
             <div
               class="card shadow-2-strong card-registration"
@@ -172,7 +180,7 @@
                       type="submit"
                       value="Registrati"
                     />
-                    <p>Sei già registrato? Effettua il login <a href="login.html">qui</a></p>
+                    <p id="alredy">Sei già registrato? Effettua il login <a href="login.html">qui</a></p>
                   </div>
                 </form>
               </div>
@@ -181,6 +189,12 @@
         </div>
       </div>
     </section>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2024 EcoPuglia. Tutti i diritti riservati.</p>
+      </div>
+    </footer>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
