@@ -12,8 +12,8 @@ CREATE TABLE Utenti (
     cognome VARCHAR(10) NOT NULL,
     dataNascita DATE NOT NULL,
     tipoUtente INT(1) NOT NULL,
-    username VARCHAR(20) NOT NULL,
-    password TEXT NOT NULL,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(60) NOT NULL,
     CODAbbonamento INT(1) NOT NULL,
     PRIMARY KEY (IDUtente),
     FOREIGN KEY (CODAbbonamento) REFERENCES Abbonamenti(IDAbbonamento)
