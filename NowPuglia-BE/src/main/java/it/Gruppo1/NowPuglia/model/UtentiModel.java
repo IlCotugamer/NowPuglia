@@ -45,8 +45,8 @@ public class UtentiModel {
     private int tipoUtente;
     @NotNull
     @NotEmpty(message = "Il campo username non può essere vuoto")
-    @Column(name = "username", length = 20)
-    private String username;
+    @Column(name = "email", length = 60, unique = true)
+    private String email;
     @NotNull
     @NotEmpty(message = "Il campo password non può essere vuoto")
     @Column(name = "password", length = 60)
@@ -55,12 +55,12 @@ public class UtentiModel {
     @JoinColumn(name = "CODAbbonamento", referencedColumnName = "IDAbbonamento")
     private AbbonamentiModel abbonamentoInfo;
 
-    public UtentiModel(String nome, String cognome, LocalDate dataNascita, int tipoUtente, String username,String encode, AbbonamentiModel abbonamentoInfo) {
+    public UtentiModel(String nome, String cognome, LocalDate dataNascita, int tipoUtente, String email,String encode, AbbonamentiModel abbonamentoInfo) {
         this.nome = nome;
         this.cognome = cognome;
         this.dataNascita = dataNascita;
         this.tipoUtente = tipoUtente;
-        this.username = username;
+        this.email = email;
         this.password = encode;
         this.abbonamentoInfo = abbonamentoInfo;
     }

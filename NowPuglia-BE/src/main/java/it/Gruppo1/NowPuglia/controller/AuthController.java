@@ -54,32 +54,29 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Validated UtentiRegisterDto utente) {
-        if (iUtentiRepository.existsByUsername(utente.getUsername()))
-            return ResponseEntity.badRequest().body("Username già in uso");
+        if (iUtentiRepository.existsByEmail(utente.getEmail()))
+            return ResponseEntity.badRequest().body("Email già in uso");
         iUsersManagerService.userRegistration(utente);
         return ResponseEntity.ok("Registrazione completata con successo");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Validated UtentiLoginDto utentiDto, HttpServletRequest request, HttpServletResponse response) {
-        UtentiModel utente = iUtentiRepository.findByUsername(utentiDto.getUsername());
-        if (utente != null) {
+    public ResponseEntity<String> login(@RequestBody @Validated UtentiLoginDto utenteDto, HttpServletRequest request, HttpServletResponse response) {
+        System.out.println("QUESTO è UTENTI DTO LOGIN "+ utenteDto);
+        UtentiModel utente = iUtentiRepository.findByEmail(utenteDto.getEmail());
+        if (utente != null && passwordEncoder.matches(utenteDto.getPassword(), utente.getPassword())) {
             Collection<? extends GrantedAuthority> authorities = DataBaseUserDetailsService.getAuthorities(utente);
-            if (passwordEncoder.matches(utentiDto.getPassword(), utente.getPassword())) {
-                UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(utentiDto.getUsername(), utentiDto.getPassword(), authorities);
-                token.setDetails(utentiDto);
-                Authentication auth = authenticationManager.authenticate(token);
-                SecurityContext context = securityContextHolderStrategy.createEmptyContext();
-                context.setAuthentication(auth);
-                securityContextHolderStrategy.setContext(context);
-                securityContextRepository.saveContext(context, request, response);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username o password errati");
-            }
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(utenteDto.getEmail(), utenteDto.getPassword(), authorities);
+            token.setDetails(utenteDto);
+            Authentication auth = authenticationManager.authenticate(token);
+            SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+            context.setAuthentication(auth);
+            securityContextHolderStrategy.setContext(context);
+            securityContextRepository.saveContext(context, request, response);
+            return ResponseEntity.ok("Accesso completato con successo");
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username o password errati");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email o password errati");
         }
-        return ResponseEntity.ok("Accesso completato con successo");
     }
 
     @PostMapping("/logout")
@@ -102,7 +99,7 @@ public class AuthController {
         if (currentPassword == null || newPassword == null || confirmPassword == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le password non possono essere nulle");
         }
-        UtentiModel utentiModel = iUtentiRepository.findByUsername(iUsersManagerService.getUsernameFromToken());
+        UtentiModel utentiModel = iUtentiRepository.findByEmail(iUsersManagerService.getUsernameFromToken());
         if (utentiModel != null) {
             if (passwordEncoder.matches(currentPassword, utentiModel.getPassword())) {
                 if (newPassword.equals(confirmPassword)) {
@@ -122,7 +119,7 @@ public class AuthController {
 
     @PostMapping("/changePlan")
     public ResponseEntity<String> changePlan(@RequestBody @Validated ChangePlanDto changePlanDto) {
-        UtentiModel utentiModel = iUtentiRepository.findByUsername(iUsersManagerService.getUsernameFromToken());
+        UtentiModel utentiModel = iUtentiRepository.findByEmail(iUsersManagerService.getUsernameFromToken());
         if (utentiModel != null) {
             if (iAbbonamentiRepository.findById(changePlanDto.getPlanNumber()) != null) {
                 utentiModel.setAbbonamentoInfo(iAbbonamentiRepository.findById(changePlanDto.getPlanNumber()));

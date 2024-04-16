@@ -32,7 +32,7 @@ public class UsersManagerService implements IUsersManagerService {
                 utentiRegisterDto.getCognome(),
                 utentiRegisterDto.getDataNascita(),
                 0, //0 = Utente Classico, 1 = Studente o Ricercatore (MAX WEB USAGE AND 1 DEVICE 100 CALL API FOR HOUR, 2 = Azienda (MAX API USAGE)
-                utentiRegisterDto.getUsername(),
+                utentiRegisterDto.getEmail(),
                 passwordEncoder.encode(utentiRegisterDto.getPassword()),
                 iAbbonamentiRepository.findById(utentiRegisterDto.getAbbonamentoInfo())
         );
@@ -41,8 +41,8 @@ public class UsersManagerService implements IUsersManagerService {
     }
 
     @Override
-    public void passwordReset(String username, String password, PasswordEncoder passwordEncoder) {
-        UtentiModel utentiModel = iUtentiRepository.findByUsername(username);
+    public void passwordReset(String email, String password, PasswordEncoder passwordEncoder) {
+        UtentiModel utentiModel = iUtentiRepository.findByEmail(email);
         utentiModel.setPassword(passwordEncoder.encode(password));
         iUtentiRepository.save(utentiModel);
     }

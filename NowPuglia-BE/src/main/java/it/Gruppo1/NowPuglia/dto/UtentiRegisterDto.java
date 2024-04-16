@@ -24,7 +24,7 @@ public class UtentiRegisterDto {
     @NotNull
     private LocalDate dataNascita;
     @NotNull
-    private String username;
+    private String email;
     @NotNull
     private String password;
     @NotNull

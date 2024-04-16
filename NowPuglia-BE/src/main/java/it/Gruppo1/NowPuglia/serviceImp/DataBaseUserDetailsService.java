@@ -26,12 +26,12 @@ public class DataBaseUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UtentiModel utenti = utentiRepository.findByUsername(username);
+        UtentiModel utenti = utentiRepository.findByEmail(username);
         if (utenti == null) {
             throw new UsernameNotFoundException("Utente non trovato");
         }
 
-        return new User(utenti.getUsername(), utenti.getPassword(), getAuthorities(utenti));
+        return new User(utenti.getEmail(), utenti.getPassword(), getAuthorities(utenti));
     }
 
     public static Collection<? extends GrantedAuthority> getAuthorities(UtentiModel utente) {

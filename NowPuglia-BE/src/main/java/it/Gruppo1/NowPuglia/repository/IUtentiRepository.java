@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IUtentiRepository extends JpaRepository<UtentiModel, Integer> {
-    UtentiModel findByUsername(@NotNull @NotEmpty(message = "Il campo username non può essere vuoto") String username);
-    boolean existsByUsername(@NotNull @NotEmpty(message = "Il campo username non può essere vuoto") String username);
+    UtentiModel findByEmail(@NotNull @NotEmpty(message = "Il campo username non può essere vuoto") String email);
+    boolean existsByEmail(@NotNull @NotEmpty(message = "Il campo username non può essere vuoto") String email);
 
 }
