@@ -1,39 +1,35 @@
-html {
-  position: relative;
-  min-height: 100%;
-  font-family: "Manrope", sans-serif;
-}
-
 body {
-  height: 100%;
-  
   animation: Animazioni 15s ease infinite;
 }
 
 @keyframes Animazioni {
   0% {
-    background-position: 0% 50%
+      background-position: 0% 50%
   }
 
   50% {
-    background-position: 100% 50%
+      background-position: 100% 50%
   }
 
   100% {
-    background-position: 0% 50%
+      background-position: 0% 50%
   }
 }
 
 .gradient-custom {
   /* Chrome 10-25, Safari 5.1-6 */
-  background: -webkit-linear-gradient(to bottom right,
-      rgb(145, 252, 147),
-      rgb(1, 108, 28));
+  background: -webkit-linear-gradient(
+    to bottom right,
+    rgb(145, 252, 147),
+    rgb(1, 108, 28)
+  );
 
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  background: linear-gradient(to bottom right,
-      rgb(86, 245, 89),
-      rgb(1, 108, 28));
+  background: linear-gradient(
+    to bottom right,
+    rgb(86, 245, 89),
+    rgb(1, 108, 28)
+  );
 }
 
 .card-registration .select-input.form-control[readonly]:not([disabled]) {
@@ -42,11 +38,17 @@ body {
   padding-left: 0.75em;
   padding-right: 0.75em;
 }
-
+.card-registration .select-arrow {
+  top: 13px;
+}
 header {
   background-color: #ffffff;
   color: #fff;
   padding: 20px;
+}
+
+header h1 {
+  margin: 0;
 }
 
 .navbar {
@@ -54,27 +56,22 @@ header {
   margin: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  /* Modificato l'allineamento */
+  justify-content: space-between; /* Modificato l'allineamento */
   font-size: 1.3rem;
 }
 
 .navbar-brand {
-  margin-left: 0;
-  /* Rimuovi il margine sinistro */
+  margin-left: 0; /* Rimuovi il margine sinistro */
 }
 
 .navbar-nav {
-  margin-left: auto;
-  /* Muove il menu a destra */
+  margin-left: auto; /* Muove il menu a destra */
   display: flex;
-  align-items: center;
-  /* Allinea verticalmente gli elementi */
+  align-items: center; /* Allinea verticalmente gli elementi */
 }
 
 .navbar-nav .nav-link {
-  padding: 0 15px;
-  /* Aggiungi spaziatura tra i link */
+  padding: 0 15px; /* Aggiungi spaziatura tra i link */
 }
 
 .navbar-brand img {
@@ -94,23 +91,45 @@ header {
   text-decoration: underline;
 }
 
+.container {
+  width: 90%;
+  margin: 0 auto;
+}
+
 .profile-icon a {
   text-decoration: none;
-  color: #fff;
-  /* Cambiato colore */
+  color: #fff; /* Cambiato colore */
 }
 
 .profile-icon a:hover {
-  color: lightgray;
-  /* Cambiato colore */
+  color: lightgray; /* Cambiato colore */
 }
 
 .profile-icon img {
   width: 30px;
-  border-radius: 50%;
-  /* Aggiunto bordo arrotondato */
+  border-radius: 50%; /* Aggiunto bordo arrotondato */
   cursor: pointer;
   margin-left: 10px;
+}
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar ul {
+    margin-top: 10px;
+    flex-direction: column; /* Cambiato direzione del menu */
+  }
+
+  .navbar ul li {
+    margin-right: 0; /* Rimossa la spaziatura laterale */
+    margin-bottom: 10px; /* Aggiunta spaziatura inferiore */
+  }
+
+  .profile-icon img {
+    margin-left: 0; /* Rimossa la spaziatura sinistra */
+  }
 }
 
 /* Dropdown */
@@ -152,49 +171,5 @@ header {
 }
 
 .dropbtn:hover {
-  color: lightgray;
-  /* Cambiato colore */
-}
-
-.content {
-  min-height: 100%;
-  height: 100%;
-}
-
-#alredy {
-  margin-top: 2rem;
-}
-
-footer {
-  position: absolute;
-  left: 0;
-  height: 70px;
-  width: 100%;
-  background-color: #4caf50;
-  color: #fff;
-  text-align: center;
-  padding: 18px;
-}
-
-@media (max-width: 768px) {
-  #NowPugliaImage {
-    align-items: center;
-  }
-
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .navbar ul {
-    margin-top: 10px;
-    flex-direction: column;
-    /* Cambiato direzione del menu */
-  }
-
-  .navbar ul li {
-    margin-right: 0;
-    margin-bottom: 10px;
-  }
-
+  color: lightgray; /* Cambiato colore */
 }
