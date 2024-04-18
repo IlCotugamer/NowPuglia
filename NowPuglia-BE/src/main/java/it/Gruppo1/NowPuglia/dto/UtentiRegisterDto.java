@@ -28,5 +28,5 @@ public class UtentiRegisterDto {
     @NotNull
     private String password;
     @NotNull
-    private int abbonamentoInfo;
+    private int tipologiaUtente;
 }

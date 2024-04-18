@@ -31,10 +31,10 @@ public class UsersManagerService implements IUsersManagerService {
                 utentiRegisterDto.getNome(),
                 utentiRegisterDto.getCognome(),
                 utentiRegisterDto.getDataNascita(),
-                0, //0 = Utente Classico, 1 = Studente o Ricercatore (MAX WEB USAGE AND 1 DEVICE 100 CALL API FOR HOUR, 2 = Azienda (MAX API USAGE)
+                utentiRegisterDto.getTipologiaUtente(), //0 = Utente Classico, 1 = Studente o Ricercatore (MAX WEB USAGE AND 1 DEVICE 100 CALL API FOR HOUR, 2 = Azienda (MAX API USAGE)
                 utentiRegisterDto.getEmail(),
                 passwordEncoder.encode(utentiRegisterDto.getPassword()),
-                iAbbonamentiRepository.findById(utentiRegisterDto.getAbbonamentoInfo())
+                iAbbonamentiRepository.findById(1)
         );
 
         iUtentiRepository.save(utentiModel);
@@ -49,7 +49,7 @@ public class UsersManagerService implements IUsersManagerService {
 
 
     @Override
-    public String getUsernameFromToken() {
+    public String getEmailFromToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User principal = (User) authentication.getPrincipal();
         return principal.getUsername();

@@ -7,38 +7,45 @@ function handleFormSubmit(event) {
   let emailAddress = document.querySelector("#emailAddress").value;
   let userType = document.querySelector(".select").value;
   let password = document.querySelector("#password").value;
-
+  let alredy = document.getElementById("alredy");
+  
   let userData = {
     nome: firstName,
     cognome: lastName,
     dataNascita: birthdayDate,
     email: emailAddress,
     password: password,
-    abbonamentoInfo: parseInt(userType)
+    tipologiaUtente: parseInt(userType) - 1
   };
 
-
   let xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
+  xhttp.onreadystatechange = function () {
     if (this.readyState == 4) {
-      if (this.status == 200) {
-        console.log("Richiesta POST completata con successo");
+      if (this.status == 201) {
+        let response = JSON.parse(xhttp.responseText);
+        alredy.innerHTML = response.payload.nome + " ti sei registrato <span class=\"text-success\">correttamente</span>!"
+        console.log("Risposta JSON:", xhttp.responseText);
+
+        firstName.value = "";
+        lastName.value = "";
+        birthdayDate.value = "";
+        emailAddress.value = "";
+        userType.value = 0; // Assicurati che questo campo sia azzerato correttamente
+        password.value = "";
       } else {
         console.error("Si è verificato un errore durante la richiesta POST");
       }
     }
   };
 
-  // Apre una richiesta POST verso l'URL desiderato
   xhttp.open("POST", "http://localhost:8080/api/auth/register", true);
   xhttp.setRequestHeader("Content-Type", "application/json");
 
-  // Invia i dati del form come JSON
-  xhttp.send(userData);
+  let jsonData = JSON.stringify(userData);
+  xhttp.send(jsonData);
 }
 
-// Aggiungi l'event listener al form quando il documento è pronto
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   let registrationForm = document.getElementById("registrationForm");
   registrationForm.addEventListener("submit", handleFormSubmit);
 });
