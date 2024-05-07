@@ -1,0 +1,186 @@
+/* Correggi il CSS della pagina */
+
+/* Imposta larghezza fissa per i campi email e password */
+form#loginForm .form-outline {
+  width: 100%; /* Imposta larghezza al 100% */
+}
+
+/* Riduci la distanza tra i campi e il bottone "Login" */
+form#loginForm .mt-4 {
+  margin-top: 1rem; /* Riduci il margine superiore */
+}
+
+/* Riduci la spaziatura inferiore del bottone "Login" */
+form#loginForm input[type="submit"] {
+  margin-bottom: 0.5rem; /* Riduci il margine inferiore */
+}
+
+/* Rimuovi il margine del corpo della pagina */
+body {
+  margin: 0;
+}
+
+/* Aggiorna lo stile del menu di navigazione */
+header {
+  background-color: #ffffff;
+  color: #000; /* Cambiato colore del testo */
+  padding: 20px;
+}
+
+.navbar {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.3rem;
+}
+
+.navbar-brand {
+  margin-left: 0;
+}
+
+.navbar-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-nav .nav-link {
+  padding: 0 15px;
+}
+
+.navbar-brand img {
+  width: 280px;
+  margin-right: 10px;
+}
+
+.navbar a {
+  text-decoration: none;
+}
+
+/* Modifica il layout del menu per dispositivi mobili */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar ul {
+    margin-top: 10px;
+    flex-direction: column;
+  }
+
+  .navbar ul li {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+}
+
+/* Stile del dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 100px;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Impostazioni aggiuntive */
+.dropbtn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dropbtn:hover {
+  color: lightgray;
+}
+
+/* Effetti di sfondo */
+body {
+  animation: Animazioni 15s ease infinite;
+}
+
+@keyframes Animazioni {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Sfondo gradiente */
+.gradient-custom {
+  background: -webkit-linear-gradient(
+    to bottom right,
+    rgb(145, 252, 147),
+    rgb(1, 108, 28)
+  );
+  background: linear-gradient(
+    to bottom right,
+    rgb(86, 245, 89),
+    rgb(1, 108, 28)
+  );
+}
+
+/* Personalizzazione della card */
+.card-registration .select-input.form-control[readonly]:not([disabled]) {
+  font-size: 1rem;
+  line-height: 2.15;
+  padding-left: 0.75em;
+  padding-right: 0.75em;
+}
+.card-registration .select-arrow {
+  top: 13px;
+}
+
+/* Icona profilo */
+.profile-icon a {
+  text-decoration: none;
+  color: #000; /* Cambiato colore */
+}
+
+.profile-icon a:hover {
+  color: lightgray;
+}
+
+.profile-icon img {
+  width: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+footer {
+  background-color: #4caf50;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
+}
