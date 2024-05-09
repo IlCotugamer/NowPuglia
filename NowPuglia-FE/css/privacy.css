@@ -188,3 +188,8 @@ form#loginForm .form-outline {
     text-align: center;
     padding: 10px;
   }
+
+  p, h5, ul {
+    margin-left: 80px;
+    margin-right: 80px;
+  }
