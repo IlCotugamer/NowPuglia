@@ -1,8 +1,6 @@
 package it.Gruppo1.NowPuglia.controller;
 
-import it.Gruppo1.NowPuglia.config.ApiConfig.ApiError;
 import it.Gruppo1.NowPuglia.config.ApiConfig.ApiResponse;
-import it.Gruppo1.NowPuglia.config.ApiConfig.ErrorDetail;
 import it.Gruppo1.NowPuglia.dto.ChangePlanDto;
 import it.Gruppo1.NowPuglia.dto.PasswordResetDto;
 import it.Gruppo1.NowPuglia.dto.UtentiLoginDto;
@@ -35,8 +33,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
+
+import static it.Gruppo1.NowPuglia.config.ApiConfig.ApiBuilder.buildResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -61,46 +59,18 @@ public class AuthController {
     @PostMapping(value = "/register",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<UtentiRegisterDto>> register(@RequestBody @Validated UtentiRegisterDto utente) {
-        if (iUtentiRepository.existsByEmail(utente.getEmail()))
-            return ResponseEntity.status(HttpStatus.CREATED).body(
-                    ApiResponse.<UtentiRegisterDto>builder()
-                            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                            .statusMessage("Email già in uso")
-                            .returnedObjects(0)
-                            .totalObjects(0)
-                            .errors(
-                                    ApiError.builder()
-                                            .path("/api/auth/register")
-                                            .timestamp(new Date())
-                                            .details(
-                                                    Collections.singletonList(
-                                                            ErrorDetail.builder()
-                                                                    .code(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))
-                                                                    .field("email")
-                                                                    .source("iUtentiRepository.existsByEmail(utente.getEmail())")
-                                                                    .message("Email già in uso").build()
-                                                    )
-                                            ).build()
-                            ).build()
-            );
+    public ResponseEntity<ApiResponse<String>> register(@RequestBody @Validated UtentiRegisterDto utente) {
+        if (iUtentiRepository.existsByEmail(utente.getEmail())) {
+            return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Email già in uso");
+        }
         iUsersManagerService.userRegistration(utente);
-        utente.setPassword("hidden");
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.<UtentiRegisterDto>builder()
-                        .statusCode(HttpStatus.CREATED.value())
-                        .statusMessage("User registrato correttamente")
-                        .returnedObjects(1)
-                        .totalObjects(1)
-                        .payload(utente).build()
-        );
+        return buildResponse(HttpStatus.CREATED, "Utente registrato correttamente");
     }
 
     @PostMapping(value = "/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<String>> login(@RequestBody @Validated UtentiLoginDto utenteDto, HttpServletRequest request, HttpServletResponse response) {
-        ApiResponse.ApiResponseBuilder<String>builder = ApiResponse.builder();
         UtentiModel utente = iUtentiRepository.findByEmail(utenteDto.getEmail());
         if (utente != null && passwordEncoder.matches(utenteDto.getPassword(), utente.getPassword())) {
             Collection<? extends GrantedAuthority> authorities = DataBaseUserDetailsService.getAuthorities(utente);
@@ -111,112 +81,63 @@ public class AuthController {
             context.setAuthentication(auth);
             securityContextHolderStrategy.setContext(context);
             securityContextRepository.saveContext(context, request, response);
-
-            builder
-                    .statusCode(HttpStatus.OK.value())
-                    .statusMessage("User loggato correttamente")
-                    .returnedObjects(1)
-                    .totalObjects(1)
-                    .build();
+            return buildResponse(HttpStatus.OK, "Utente loggato correttamente");
         } else {
-            builder
-                    .statusCode(HttpStatus.NOT_FOUND.value())
-                    .statusMessage("Nessun utente trovato, email o password errati")
-                    .returnedObjects(0)
-                    .totalObjects(0).build();
+            return buildResponse(HttpStatus.NOT_FOUND, "Nessun utente trovato, email o password errati");
         }
-        ApiResponse<String> risposta = builder.build();
-        return ResponseEntity.status(HttpStatus.OK).body(risposta);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
-        ApiResponse.ApiResponseBuilder<String>builder = ApiResponse.builder();
         SecurityContext context = SecurityContextHolder.getContext();
         request.getSession().invalidate();
         context.setAuthentication(null);
         SecurityContextHolder.clearContext();
-        builder
-                .statusCode(HttpStatus.OK.value())
-                .statusMessage("Logout avvenuto correttamente")
-                .returnedObjects(0)
-                .totalObjects(0).build();
-
-        ApiResponse<String> risposta = builder.build();
-        return ResponseEntity.status(HttpStatus.OK).body(risposta);
+        return buildResponse(HttpStatus.OK, "Logout avvenuto correttamente");
     }
 
     @PostMapping("/passwordReset")
     public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody @Validated PasswordResetDto passwordResetDto) {
-        ApiResponse.ApiResponseBuilder<String>builder = ApiResponse.builder();
         String currentPassword = passwordResetDto.getCurrentPassword();
         String newPassword = passwordResetDto.getNewPassword();
         String confirmPassword = passwordResetDto.getConfirmPassword();
+
         if (currentPassword == null || newPassword == null || confirmPassword == null) {
-            builder
-                    .statusCode(HttpStatus.BAD_REQUEST.value())
-                    .statusMessage("Le password non possono essere nulle")
-                    .returnedObjects(0)
-                    .totalObjects(0).build();
-            ApiResponse<String> risposta = builder.build();
-            return ResponseEntity.status(HttpStatus.OK).body(risposta);
+            return buildResponse(HttpStatus.BAD_REQUEST, "Le password non possono essere nulle");
         }
+
         UtentiModel utentiModel = iUtentiRepository.findByEmail(iUsersManagerService.getEmailFromToken());
-        if (utentiModel != null) {
-            if (passwordEncoder.matches(currentPassword, utentiModel.getPassword())) {
-                if (newPassword.equals(confirmPassword)) {
-                    iUsersManagerService.passwordReset(
-                            iUsersManagerService.getEmailFromToken(),
-                            newPassword,
-                            passwordEncoder
-                    );
-                } else {
-                    builder
-                            .statusCode(HttpStatus.BAD_REQUEST.value())
-                            .statusMessage("Le password non coincidono")
-                            .returnedObjects(0)
-                            .totalObjects(0).build();
-                    ApiResponse<String> risposta = builder.build();
-                    return ResponseEntity.status(HttpStatus.OK).body(risposta);
-                }
-            } else {
-                builder
-                        .statusCode(HttpStatus.NOT_FOUND.value())
-                        .statusMessage("Nessun utente trovato in questa sessione")
-                        .returnedObjects(0)
-                        .totalObjects(0).build();
-                ApiResponse<String> risposta = builder.build();
-                return ResponseEntity.status(HttpStatus.OK).body(risposta);
-            }
-        } else {
-            builder
-                    .statusCode(HttpStatus.NOT_FOUND.value())
-                    .statusMessage("Utente non trovato")
-                    .returnedObjects(0)
-                    .totalObjects(0).build();
-            ApiResponse<String> risposta = builder.build();
-            return ResponseEntity.status(HttpStatus.OK).body(risposta);
+
+        if (utentiModel == null) {
+            return buildResponse(HttpStatus.NOT_FOUND, "Utente non trovato");
         }
-        builder
-                .statusCode(HttpStatus.OK.value())
-                .statusMessage("Password cambiata correttamente")
-                .returnedObjects(1)
-                .totalObjects(1).build();
-        ApiResponse<String> risposta = builder.build();
-        return ResponseEntity.status(HttpStatus.OK).body(risposta);
+
+        if (!passwordEncoder.matches(currentPassword, utentiModel.getPassword())) {
+            return buildResponse(HttpStatus.NOT_FOUND, "Nessun utente trovato in questa sessione");
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            return buildResponse(HttpStatus.BAD_REQUEST, "Le password non coincidono");
+        }
+
+        iUsersManagerService.passwordReset(iUsersManagerService.getEmailFromToken(), newPassword, passwordEncoder);
+
+        return buildResponse(HttpStatus.OK, "Password cambiata correttamente");
     }
 
     @PostMapping("/changePlan")
-    public ResponseEntity<String> changePlan(@RequestBody @Validated ChangePlanDto changePlanDto) {
+    public ResponseEntity<ApiResponse<String>> changePlan(@RequestBody @Validated ChangePlanDto changePlanDto) {
         UtentiModel utentiModel = iUtentiRepository.findByEmail(iUsersManagerService.getEmailFromToken());
         if (utentiModel != null) {
-            if (iAbbonamentiRepository.findById(changePlanDto.getPlanNumber()) != null) {
+            if (iAbbonamentiRepository.existsById(changePlanDto.getPlanNumber())) {
                 utentiModel.setAbbonamentoInfo(iAbbonamentiRepository.findById(changePlanDto.getPlanNumber()));
                 iUtentiRepository.save(utentiModel);
-            } else
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Abbonamento non valido");
-        } else
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Utente non valido");
-        return ResponseEntity.ok("Password cambiata con successo");
+                return buildResponse(HttpStatus.OK, "Piano cambiato con successo");
+            } else {
+                return buildResponse(HttpStatus.UNAUTHORIZED, "Abbonamento non valido");
+            }
+        } else {
+            return buildResponse(HttpStatus.UNAUTHORIZED, "Utente non valido");
+        }
     }
 }

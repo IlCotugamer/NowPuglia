@@ -58,7 +58,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/logout").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
                         .requestMatchers(HttpMethod.POST, "/api/auth/passwordReset").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
                         .requestMatchers(HttpMethod.POST, "/api/auth/changePlan").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
-                        .requestMatchers(HttpMethod.GET, "/ciao").hasAnyRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/areIAuth").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
+                        .requestMatchers(HttpMethod.GET, "api/v1/data").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
+                        .requestMatchers(HttpMethod.POST, "api/v1/data").hasAnyRole("USER", "BASIC", "MEMBER", "COMPANY")
                 )
                 .sessionManagement(
                         sessionManagement -> sessionManagement

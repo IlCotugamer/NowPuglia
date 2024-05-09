@@ -14,6 +14,6 @@ import java.util.LinkedList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JsonDataDto {
-    private int misurazioniTotali;
+    private long misurazioniTotali;
     private LinkedList<MisurazioniDto> misurazioni;
 }

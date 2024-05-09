@@ -1,4 +1,4 @@
-USE EcoPuglia;
+USE NowPuglia;
 
 CREATE TABLE Abbonamenti (
     IDAbbonamento INT(1) AUTO_INCREMENT NOT NULL,

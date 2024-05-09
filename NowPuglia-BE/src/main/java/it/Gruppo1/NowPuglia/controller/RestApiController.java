@@ -1,19 +1,27 @@
 package it.Gruppo1.NowPuglia.controller;
 
-/*  Rest Api controller
-TODO:
-    - Lettura db
-    - Richieste al db
-    - Query specifiche
-*/
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import it.Gruppo1.NowPuglia.dto.JsonResponse.JsonDataDto;
+import it.Gruppo1.NowPuglia.service.IJsonResponseService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/v1")
 public class RestApiController {
-    @GetMapping("/ciao")
-    private String hello() {
-        return "Hello World";
+    private final IJsonResponseService iJsonResponseService;
+
+    @Autowired
+    public RestApiController(IJsonResponseService iJsonResponseService) {
+        this.iJsonResponseService = iJsonResponseService;
+    }
+
+    @GetMapping("/areIAuth")
+    private String areIAuth() {
+        return "Yes, you are authenticated!";
+    }
+
+    @RequestMapping(value = "/data", method = {RequestMethod.GET, RequestMethod.POST})
+    private JsonDataDto data() {
+        return iJsonResponseService.runResponse();
     }
 }

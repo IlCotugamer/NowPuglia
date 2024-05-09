@@ -14,7 +14,6 @@ public class ApiResponse <T>{
     private String statusMessage;
     private int returnedObjects;
     private int totalObjects;
-    private T payload;
 
     @JsonInclude(Include.NON_NULL)
     private ApiError errors;

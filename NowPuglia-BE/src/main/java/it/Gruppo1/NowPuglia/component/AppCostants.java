@@ -48,4 +48,25 @@ public class AppCostants {
 
         return finalAriaUrl;
     }
+
+    public static String capitalize(String city) {
+        if (city == null || city.isEmpty()) {
+            return city;
+        }
+        String[] words = city.split("\\s+");
+        StringBuilder capitalizedCity = new StringBuilder();
+
+        for (int i = 0; i < words.length; i++) {
+            if (!words[i].isEmpty()) {
+                String firstLetter = words[i].substring(0, 1).toUpperCase();
+                String restOfWord = words[i].substring(1).toLowerCase();
+                capitalizedCity.append(firstLetter).append(restOfWord);
+                if (i < words.length - 1) {
+                    capitalizedCity.append(" ");
+                }
+            }
+        }
+
+        return capitalizedCity.toString();
+    }
 }

@@ -28,6 +28,8 @@ import java.io.StringReader;
 import java.time.LocalTime;
 import java.util.List;
 
+import static it.Gruppo1.NowPuglia.component.AppCostants.capitalize;
+
 @Service
 public class DataManagerService implements IDataManagerService {
     private final WebClient webClient;
@@ -105,12 +107,11 @@ public class DataManagerService implements IDataManagerService {
                     isFirst = false;
                     continue;
                 }
-
+                lineRecords[1] = capitalize(lineRecords[1]);
                 if (!iCittaRepository.existsByNomeCitta(lineRecords[1])) {
                     iCittaRepository.save(new CittaModel(lineRecords[1]));
                 }
                 cittaModel = iCittaRepository.findByNomeCitta(lineRecords[1]);
-
                 energiaModel = new EnergiaModel(
                         ("Solare".equals(lineRecords[2])) ? 0 : ("Eolico on-shore".equals(lineRecords[2])) ? 1 : 2,
                         lineRecords[3],
@@ -142,6 +143,7 @@ public class DataManagerService implements IDataManagerService {
                         continue;
                     }
                     String comune = record.get("comune").asText();
+                    comune = capitalize(comune);
                     if (!iCittaRepository.existsByNomeCitta(comune)) {
                         iCittaRepository.save(new CittaModel(comune));
                     }

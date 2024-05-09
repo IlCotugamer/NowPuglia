@@ -17,12 +17,10 @@ function handleFormSubmit(event) {
     abbonamentoInfo: password
   };
 
-  // Crea una nuova richiesta XMLHttpRequest
   let xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4) {
       if (this.status == 200) {
-        // Gestisci la risposta qui se necessario
         console.log("Richiesta POST completata con successo");
       } else {
         console.error("Si è verificato un errore durante la richiesta POST");

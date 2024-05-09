@@ -13,6 +13,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class MisurazioniDto {
     private String citta;
-    private EnergiaDto energiaDto;
-    private AriaDto ariaDto;
+    private EnergiaDto energiaRinnovabileProdotta;
+    private AriaDto valoriAriaInquinata;
 }
