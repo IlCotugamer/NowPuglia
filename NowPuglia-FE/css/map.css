@@ -1,0 +1,13 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Manrope", sans-serif;
+}
+
+#map {
+    height: 500px;
+    width: 500px;
+    max-width: 100%; /* Garantisce che la mappa non superi la larghezza del viewport */
+    max-height: 100%; /* Garantisce che la mappa non superi l'altezza del viewport */
+}
